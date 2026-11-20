@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
 using LearningExperienceEngine.DTOs;
+using TMPro;
 using UnityEngine;
 using Activity = LearningExperienceEngine.DataModel.Activity;
 
@@ -32,6 +36,8 @@ namespace MirageXR
             RootObject.Instance.LEE.ActivityManager.OnActivityClosed += OnActivityClosed;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
             RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnLoginCompleted;
+            RootObject.Instance.LEE.AuthorizationManager.OnPrivilegesChanged += UpdateAddNewActivityButtonState;
+            UpdateAddNewActivityButtonState();
         }
 
         protected override void OnUnbind()
@@ -49,6 +55,7 @@ namespace MirageXR
                 if (RootObject.Instance.LEE.AuthorizationManager != null)
                 {
                     RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted -= OnLoginCompleted;
+                    RootObject.Instance.LEE.AuthorizationManager.OnPrivilegesChanged -= UpdateAddNewActivityButtonState;
                 }
             }
         }
@@ -138,8 +145,19 @@ namespace MirageXR
             FetchActivitiesAsync().Forget();
         }
 
+        private string _activeTagFilter;
+        private ActivityResponse _lastResponse;
+
+        private void UpdateAddNewActivityButtonState()
+        {
+            View.SetAddNewActivityButtonActive(RootObject.Instance.LEE.AuthorizationManager.CanCreateActivity);
+        }
+
         private void OnActivitiesFetched(ActivityResponse response)
         {
+            _lastResponse = response;
+            UpdateAddNewActivityButtonState();
+
             var container = View.GetActivityContainer();
             var prefab = View.GetActivityListItemPrefab();
             var selectedActivityId = RootObject.Instance.LEE.ActivityManager.ActivityId;
@@ -149,19 +167,117 @@ namespace MirageXR
                 Destroy(child.gameObject);
             }
 
-            ActivitySpatialListItem selectedItem = null;
-            foreach (var activity in response.Activities)
+            IEnumerable<LearningExperienceEngine.DTOs.Activity> activities = response.Activities;
+            if (!string.IsNullOrEmpty(_activeTagFilter))
             {
-                var isSelected = activity.Id == selectedActivityId;
-                var item = Instantiate(prefab, container);
-                item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked, isSelected);
-                if (isSelected)
-                {
-                    selectedItem = item;
-                }
+                activities = activities.Where(a => a.Tags != null && a.Tags.Contains(_activeTagFilter));
             }
 
-            selectedItem?.transform.SetAsFirstSibling();
+            if (LearningExperienceEngine.UserSettings.groupByTags)
+            {
+                var taggedActivities = activities.SelectMany(a =>
+                {
+                    if (a.Tags == null || a.Tags.Count == 0)
+                    {
+                        return new[] { (Tag: "Untagged", Activity: a) };
+                    }
+
+                    var validTags = a.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct().ToList();
+                    if (validTags.Count == 0)
+                    {
+                        return new[] { (Tag: "Untagged", Activity: a) };
+                    }
+
+                    return validTags.Select(t => (Tag: t.Trim(), Activity: a)).ToArray();
+                });
+
+                var groups = taggedActivities
+                    .GroupBy(pair => pair.Tag, pair => pair.Activity)
+                    .OrderBy(g => IsUntaggedOrUntitled(g.Key) ? 1 : 0)
+                    .ThenBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
+
+                foreach (var group in groups)
+                {
+                    CreateGroupHeader(container, group.Key);
+
+                    foreach (var activity in group)
+                    {
+                        var isSelected = activity.Id == selectedActivityId;
+                        var item = Instantiate(prefab, container);
+                        item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked, isSelected, OnTagClicked);
+                    }
+                }
+            }
+            else
+            {
+                ActivitySpatialListItem selectedItem = null;
+                foreach (var activity in activities)
+                {
+                    var isSelected = activity.Id == selectedActivityId;
+                    var item = Instantiate(prefab, container);
+                    item.Initialize(activity, OnActivityListItemClicked, OnActivityListItemDeleteClicked, isSelected, OnTagClicked);
+                    if (isSelected)
+                    {
+                        selectedItem = item;
+                    }
+                }
+
+                selectedItem?.transform.SetAsFirstSibling();
+            }
+        }
+
+        private static bool IsUntaggedOrUntitled(string tag)
+        {
+            return string.IsNullOrWhiteSpace(tag) ||
+                   string.Equals(tag, "Untagged", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(tag, "Untitled", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string SplitCamelCase(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+            return Regex.Replace(input, @"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ");
+        }
+
+        private void CreateGroupHeader(Transform container, string title)
+        {
+            var headerGo = new GameObject($"GroupHeader_{title}", typeof(RectTransform));
+            headerGo.transform.SetParent(container, false);
+            var rt = headerGo.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(0, 36);
+
+            var textGo = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            textGo.transform.SetParent(headerGo.transform, false);
+            var textRt = textGo.GetComponent<RectTransform>();
+            textRt.anchorMin = new Vector2(0, 0);
+            textRt.anchorMax = new Vector2(1, 1);
+            textRt.offsetMin = new Vector2(15, 0);
+            textRt.offsetMax = new Vector2(-15, 0);
+
+            var tmp = textGo.GetComponent<TextMeshProUGUI>();
+            tmp.text = SplitCamelCase(title);
+            tmp.fontSize = 17;
+            tmp.fontStyle = FontStyles.Bold;
+            tmp.color = new Color(0.85f, 0.85f, 0.85f, 1f);
+            tmp.alignment = TextAlignmentOptions.MidlineLeft;
+            tmp.raycastTarget = false;
+        }
+
+        private void OnTagClicked(string tag)
+        {
+            if (_activeTagFilter == tag)
+            {
+                _activeTagFilter = null; // Toggle off
+            }
+            else
+            {
+                _activeTagFilter = tag;
+            }
+
+            if (_lastResponse != null)
+            {
+                OnActivitiesFetched(_lastResponse);
+            }
         }
 
         private void OnAddNewActivityClick()
@@ -213,8 +329,19 @@ namespace MirageXR
 
         private async UniTask DeleteActivityAsync(LearningExperienceEngine.DTOs.Activity activity)
         {
-            await RootObject.Instance.LEE.ActivityManager.DeleteActivityAsync(activity.Id);
-            await RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+            try
+            {
+                await RootObject.Instance.LEE.ActivityManager.DeleteActivityAsync(activity.Id);
+                await RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to delete activity '{activity.Name}': {ex.Message}");
+                if (DialogWindow.Instance != null)
+                {
+                    DialogWindow.Instance.Show("Delete Failed", $"Failed to delete activity: {ex.Message}", new DialogButtonContent("OK"));
+                }
+            }
         }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using DG.Tweening;
 using MirageXR;
 using System.Collections;
@@ -68,6 +70,7 @@ public class ActivityView_v2 : BaseView
         RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditModeChanged;
         RootObject.Instance.LEE.ContentManager.OnContentActivated += OnContentActivated;
         RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
+        RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
 
         _stepsVertical.SetActive(true);
         _stepsHorizontal.SetActive(false);
@@ -84,6 +87,66 @@ public class ActivityView_v2 : BaseView
     private void OnActivityUpdated(Activity activity)
     {
         _activity = activity;
+        UpdateEditToggleState();
+    }
+
+    private bool CheckIsCreator()
+    {
+        if (_activity == null) return false;
+        var auth = RootObject.Instance.LEE.AuthorizationManager;
+        if (auth == null) return false;
+
+        return (!string.IsNullOrEmpty(auth.UserSub) &&
+            ((_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase)) ||
+             (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase)))) ||
+            (!string.IsNullOrEmpty(auth.UserName) && !string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserName, StringComparison.OrdinalIgnoreCase)) ||
+            (!string.IsNullOrEmpty(auth.UserFullName) && _activity.Creator != null && string.Equals(_activity.Creator.Name, auth.UserFullName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private bool HasScopePrivilege(string privilege)
+    {
+        var auth = RootObject.Instance.LEE.AuthorizationManager;
+        if (auth == null) return false;
+        if (auth.HasScopePrivilege("*", privilege)) return true;
+        if (auth.UserPrivileges != null && auth.UserPrivileges.Any(p => string.Equals(p, privilege, StringComparison.OrdinalIgnoreCase) || string.Equals(p, "admin", StringComparison.OrdinalIgnoreCase))) return true;
+        string scope = string.IsNullOrWhiteSpace(_activity?.CustomerScope) ? "wekit" : _activity.CustomerScope;
+        return auth.HasScopePrivilege(scope, privilege);
+    }
+
+    private void UpdateEditToggleState()
+    {
+        if (_toggleEdit == null) return;
+        if (_activity == null)
+        {
+            _toggleEdit.gameObject.SetActive(true);
+            return;
+        }
+
+        var auth = RootObject.Instance.LEE.AuthorizationManager;
+        if (auth == null)
+        {
+            _toggleEdit.gameObject.SetActive(true);
+            return;
+        }
+
+        bool isCreator = CheckIsCreator();
+        bool isSystemAdmin = auth.HasScopePrivilege("*", "update");
+        bool hasCustomerUpdate = HasScopePrivilege("update");
+
+        // ND restriction: If NoDerivatives is true, only creator, system admin, or users with scope update privilege can edit.
+        bool blockedByND = (_activity.License != null && _activity.License.NoDerivatives) && !isCreator && !isSystemAdmin && !hasCustomerUpdate;
+
+        bool canUpdate = isCreator || hasCustomerUpdate || _activity.EffectivePermissions == null || _activity.EffectivePermissions.Update;
+        bool canShare = isCreator || HasScopePrivilege("share") || HasScopePrivilege("admin") || _activity.EffectivePermissions == null || _activity.EffectivePermissions.Share;
+        bool canCreate = auth.CanCreateActivity || HasScopePrivilege("create") || _activity.EffectivePermissions == null || _activity.EffectivePermissions.Create;
+
+        bool canEdit = (canUpdate || canShare || canCreate) && !blockedByND;
+
+        _toggleEdit.gameObject.SetActive(canEdit);
+        if (!canEdit && RootObject.Instance.LEE.ActivityManager.IsEditorMode)
+        {
+            RootObject.Instance.LEE.ActivityManager.IsEditorMode = false;
+        }
     }
 
     private void UpdateView()

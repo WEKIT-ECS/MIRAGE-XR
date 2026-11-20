@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using LearningExperienceEngine.NewDataModel;
@@ -12,14 +14,16 @@ namespace MirageXR  //TODO: add Spatial namespace
         private Activity _activity;
         private Texture2D _texture;
         private System.Threading.CancellationTokenSource _updateInfoCts;
+        private bool _hasStartedActivity;
 
         public override ScreenName ScreenName => ScreenName.NewActivityScreen;
 
-        private static RoomTwinManager roomTwinManager => RootObject.Instance.RoomTwinManager;
+        private static RoomTwinManager roomTwinManager => RootObject.Instance != null ? RootObject.Instance.RoomTwinManager : null;
 
         protected override void OnBind()
         {
             base.OnBind();
+            View.InitializeDropdowns();
             View.SetActionOnButtonBackClick(OnButtonBackClicked);
             View.SetActionOnButtonCloseClick(OnButtonCloseClicked);
             View.SetActionOnButtonSettingsClick(OnButtonSettingsClicked);
@@ -31,14 +35,26 @@ namespace MirageXR  //TODO: add Spatial namespace
             View.SetActionOnButtonWireframeVignetteClick(OnButtonWireframeVignetteClicked);
             View.SetActionOnButtonAssignRoomModelClick(OnButtonAssignRoomModelClicked);
             View.SetActionOnButtonRepositionClick(OnButtonRepositionClicked);
+            View.SetActionOnButtonDeleteRoomScanClick(OnButtonDeleteRoomScanClicked);
             View.SetActionOnToggleShowRoomScanValueChanged(OnToggleShowRoomScanValueChanged);
             View.SetActionOnButtonThumbnailClick(OnButtonThumbnailClicked);
             View.SetActionOnButtonDeleteThumbnailClick(OnButtonDeleteThumbnailClicked);
 
             View.SetActionOnInputFieldActivityNameEditEnd(OnInputFieldActivityNameEditEnd);
+            View.SetActionOnInputFieldActivityTagsEditEnd(OnInputFieldActivityTagsEditEnd);
             View.SetActionOnInputFieldActivityDescriptionEditEnd(OnInputFieldActivityDescriptionEditEnd);
+            View.SetActionOnDropdownVisibilityChanged(OnDropdownVisibilityChanged);
+            View.SetActionOnDropdownPublicationStatusChanged(OnDropdownPublicationStatusChanged);
+            View.SetActionOnInputFieldCustomerScopeEditEnd(OnInputFieldCustomerScopeEditEnd);
+            View.SetActionOnButtonAddGrantClick(OnButtonAddGrantClicked);
+            View.SetActionOnButtonDuplicateClick(OnButtonDuplicateClicked);
+            View.SetActionOnButtonStartActivityClick(OnButtonStartActivityClicked);
+            View.SetActionOnToggleLicenseBY(OnToggleLicenseBYChanged);
+            View.SetActionOnToggleLicenseSA(OnToggleLicenseSAChanged);
+            View.SetActionOnToggleLicenseND(OnToggleLicenseNDChanged);
+            View.SetActionOnToggleLicenseNC(OnToggleLicenseNCChanged);
 
-            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityUpdated;
+            RootObject.Instance.LEE.ActivityManager.OnActivityLoaded += OnActivityLoaded;
             RootObject.Instance.LEE.ActivityManager.OnActivityUpdated += OnActivityUpdated;
             RootObject.Instance.LEE.ActivityManager.OnActivityClosed += OnActivityClosed;
             RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged += OnEditorModeChanged;
@@ -56,7 +72,7 @@ namespace MirageXR  //TODO: add Spatial namespace
             {
                 if (RootObject.Instance.LEE.ActivityManager != null)
                 {
-                    RootObject.Instance.LEE.ActivityManager.OnActivityLoaded -= OnActivityUpdated;
+                    RootObject.Instance.LEE.ActivityManager.OnActivityLoaded -= OnActivityLoaded;
                     RootObject.Instance.LEE.ActivityManager.OnActivityUpdated -= OnActivityUpdated;
                     RootObject.Instance.LEE.ActivityManager.OnActivityClosed -= OnActivityClosed;
                     RootObject.Instance.LEE.ActivityManager.OnEditorModeChanged -= OnEditorModeChanged;
@@ -75,12 +91,15 @@ namespace MirageXR  //TODO: add Spatial namespace
             _updateInfoCts?.Cancel();
             _updateInfoCts?.Dispose();
             _updateInfoCts = null;
+        }
 
+        protected override void OnViewDeactivated()
+        {
+            base.OnViewDeactivated();
             if (MenuManager.Instance != null)
             {
                 MenuManager.Instance.CloseDigitalTwinPopups();
             }
-            UpdateRoomTwinToggle();
         }
 
         private void OnInputFieldActivityNameEditEnd(string text)
@@ -88,9 +107,226 @@ namespace MirageXR  //TODO: add Spatial namespace
             RootObject.Instance.LEE.ActivityManager.SetActivityName(text);
         }
 
+        private void OnInputFieldActivityTagsEditEnd(string text)
+        {
+            var tags = text?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                           .Select(t => t.Trim())
+                           .Where(t => !string.IsNullOrEmpty(t))
+                           .ToList() ?? new List<string>();
+            RootObject.Instance.LEE.ActivityManager.SetActivityTags(tags);
+        }
+
         private void OnInputFieldActivityDescriptionEditEnd(string text)
         {
             RootObject.Instance.LEE.ActivityManager.SetActivityDescription(text);
+        }
+
+        private void OnDropdownVisibilityChanged(int index)
+        {
+            string[] options = { "private", "protected", "unlisted", "public" };
+            if (index >= 0 && index < options.Length)
+            {
+                RootObject.Instance.LEE.ActivityManager.SetActivityVisibility(options[index]);
+            }
+        }
+
+        private void OnDropdownPublicationStatusChanged(int index)
+        {
+            string[] options = { "draft", "published" };
+            if (index >= 0 && index < options.Length && _activity != null)
+            {
+                RootObject.Instance.LEE.ActivityManager.SetActivityPublicationStatus(options[index]);
+            }
+        }
+
+        private void OnInputFieldCustomerScopeEditEnd(string text)
+        {
+            if (_activity == null || string.IsNullOrWhiteSpace(text)) return;
+            var trimmedScope = text.Trim();
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (!auth.HasScopePrivilege(trimmedScope, "create"))
+            {
+                if (DialogWindow.Instance != null)
+                {
+                    DialogWindow.Instance.Show("Permission Denied", $"You do not have creator privileges for customer scope '{trimmedScope}'.", new DialogButtonContent("OK"));
+                }
+                View.SetInputFieldCustomerScopeText(string.IsNullOrWhiteSpace(_activity.CustomerScope) ? "wekit" : _activity.CustomerScope);
+                return;
+            }
+            RootObject.Instance.LEE.ActivityManager.SetActivityCustomerScope(trimmedScope);
+        }
+
+        private void OnToggleLicenseBYChanged(bool value)
+        {
+            if (_activity == null) return;
+            _activity.License ??= new ActivityLicense();
+            _activity.License.Attribution = value;
+            RootObject.Instance.LEE.ActivityManager.SetActivityLicense(_activity.License);
+            View.SetCreatorAttributionText(value && !string.IsNullOrEmpty(_activity.Creator?.Name) ? $"Created by: {_activity.Creator.Name}" : string.Empty, value && !string.IsNullOrEmpty(_activity.Creator?.Name));
+        }
+
+        private void OnToggleLicenseSAChanged(bool value)
+        {
+            if (_activity == null) return;
+            _activity.License ??= new ActivityLicense();
+            _activity.License.ShareAlike = value;
+            RootObject.Instance.LEE.ActivityManager.SetActivityLicense(_activity.License);
+        }
+
+        private void OnToggleLicenseNDChanged(bool value)
+        {
+            if (_activity == null) return;
+            _activity.License ??= new ActivityLicense();
+            _activity.License.NoDerivatives = value;
+            RootObject.Instance.LEE.ActivityManager.SetActivityLicense(_activity.License);
+            UpdateEditToggleState();
+        }
+
+        private void OnToggleLicenseNCChanged(bool value)
+        {
+            if (_activity == null) return;
+            _activity.License ??= new ActivityLicense();
+            _activity.License.NonCommercial = value;
+            RootObject.Instance.LEE.ActivityManager.SetActivityLicense(_activity.License);
+        }
+
+        private bool CheckIsCreator()
+        {
+            if (_activity == null) return false;
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (auth == null) return false;
+
+            return (!string.IsNullOrEmpty(auth.UserSub) &&
+                ((_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase)) ||
+                 (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase)))) ||
+                (!string.IsNullOrEmpty(auth.UserName) && !string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserName, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(auth.UserFullName) && _activity.Creator != null && string.Equals(_activity.Creator.Name, auth.UserFullName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private bool HasScopePrivilege(string privilege)
+        {
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (auth == null) return false;
+            if (auth.HasScopePrivilege("*", privilege)) return true;
+            if (auth.UserPrivileges != null && auth.UserPrivileges.Any(p => string.Equals(p, privilege, StringComparison.OrdinalIgnoreCase) || string.Equals(p, "admin", StringComparison.OrdinalIgnoreCase))) return true;
+            string scope = string.IsNullOrWhiteSpace(_activity?.CustomerScope) ? "wekit" : _activity.CustomerScope;
+            return auth.HasScopePrivilege(scope, privilege);
+        }
+
+        private bool CanUpdate() => CheckIsCreator() || HasScopePrivilege("update") || HasScopePrivilege("admin") || _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Update;
+        private bool CanShare() => CheckIsCreator() || HasScopePrivilege("share") || HasScopePrivilege("admin") || _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Share;
+        private bool CanDuplicate() => CheckIsCreator() || HasScopePrivilege("duplicate") || HasScopePrivilege("admin") || _activity?.EffectivePermissions == null || (_activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read);
+
+        private void OnButtonAddGrantClicked()
+        {
+            if (!View.IsAddGrantPanelActive())
+            {
+                View.SetAddGrantPanelActive(true);
+                View.HighlightGranteeInputError();
+                return;
+            }
+
+            if (View.TryGetNewGrantData(out var grant))
+            {
+                RootObject.Instance.LEE.ActivityManager.AddActivityGrant(grant);
+                View.ClearNewGrantInputs();
+                bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+                View.SetGrantsList(_activity?.Grants, isEditor, CanShare(), OnRemoveGrant);
+            }
+            else
+            {
+                View.HighlightGranteeInputError();
+                if (DialogWindow.Instance != null)
+                {
+                    DialogWindow.Instance.Show("Grantee Required", "Please enter a valid user or group ID to add a grant.", new DialogButtonContent("OK"));
+                }
+            }
+        }
+
+        private void OnRemoveGrant(int index)
+        {
+            RootObject.Instance.LEE.ActivityManager.RemoveActivityGrant(index);
+            bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+            View.SetGrantsList(_activity?.Grants, isEditor, CanShare(), OnRemoveGrant);
+        }
+
+        private void OnButtonStartActivityClicked()
+        {
+            _hasStartedActivity = true;
+            View.SetButtonStartActivityActive(false);
+
+            if (_activity?.Steps != null && _activity.Steps.Count > 0)
+            {
+                RootObject.Instance.LEE.StepManager.GoToStep(_activity.Steps[0].Id);
+            }
+            View.SwitchToStepsTab();
+        }
+
+        private void OnButtonDuplicateClicked()
+        {
+            OnButtonDuplicateClickedAsync().Forget();
+        }
+
+        private async UniTask OnButtonDuplicateClickedAsync()
+        {
+            if (_activity == null) return;
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            var allowedDestinations = auth.DuplicationDestinationScopes;
+
+            if (allowedDestinations == null || allowedDestinations.Count == 0)
+            {
+                if (DialogWindow.Instance != null)
+                {
+                    DialogWindow.Instance.Show("Duplication Not Allowed", "You do not have manager or creator privileges in any customer scope to duplicate activities.", new DialogButtonContent("OK"));
+                }
+                return;
+            }
+
+            bool isOriginalCreator = (_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase))
+                                  || (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase));
+            bool isSystemAdmin = auth.HasScopePrivilege("*", "duplicate");
+            if (_activity.License != null && !_activity.License.ShareAlike && !isOriginalCreator && !isSystemAdmin)
+            {
+                if (DialogWindow.Instance != null)
+                {
+                    DialogWindow.Instance.Show("Duplication Restricted", "This activity has Share-Alike disabled and cannot be duplicated by non-creators.", new DialogButtonContent("OK"));
+                }
+                return;
+            }
+
+            string targetScope;
+            if (!string.IsNullOrEmpty(_activity.CustomerScope) && allowedDestinations.Any(s => string.Equals(s, _activity.CustomerScope, StringComparison.OrdinalIgnoreCase)))
+            {
+                targetScope = _activity.CustomerScope;
+            }
+            else
+            {
+                targetScope = allowedDestinations[0];
+            }
+
+            try
+            {
+                var duplicateName = "Copy of " + _activity.Name;
+
+                var duplicated = await RootObject.Instance.LEE.ActivityManager.DuplicateActivityAsync(_activity.Id, targetScope, duplicateName);
+                if (duplicated != null && duplicated.Id != Guid.Empty)
+                {
+                    await RootObject.Instance.LEE.ActivityManager.LoadActivityAsync(duplicated.Id);
+                    RootObject.Instance.LEE.ActivityManager.IsEditorMode = true;
+                }
+                else
+                {
+                    OnButtonCloseClicked();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to duplicate activity: {ex.Message}");
+                if (DialogWindow.Instance != null)
+                {
+                    DialogWindow.Instance.Show("Error", $"Duplication failed: {ex.Message}", new DialogButtonContent("OK"));
+                }
+            }
         }
 
         private void OnButtonThumbnailClicked()
@@ -198,15 +434,50 @@ namespace MirageXR  //TODO: add Spatial namespace
                 View.SwitchToInfoTab();
             }
 
-            View.SetAssignRoomModelInteractable(value);
-            View.SetRepositionInteractable(value);
+            bool canUpdate = CanUpdate();
+            bool canShare = CanShare();
+            bool canDuplicate = CanDuplicate();
 
-            View.SetInputFieldActivityNameTextInteractable(value);
-            View.SetInputFieldActivityDescriptionInteractable(value);
-            View.SetPanelAddNewStepActive(value);
+            View.SetAssignRoomModelInteractable(value && canUpdate);
+            View.SetRepositionInteractable(value && canUpdate);
+
+            View.SetInputFieldActivityNameTextInteractable(value && canUpdate);
+            View.SetInputFieldActivityTagsInteractable(value && canUpdate);
+            View.SetInputFieldActivityDescriptionInteractable(value && canUpdate);
+            View.SetPanelAddNewStepActive(value && canUpdate);
+            View.SetDropdownVisibilityInteractable(value && canShare);
+
+            View.SetDropdownPublicationStatusInteractable(value && canShare);
+            View.SetInputFieldCustomerScopeInteractable(value && canUpdate);
+            View.SetAddGrantPanelActive(canShare);
+            View.SetGrantsList(_activity?.Grants, value, canShare, OnRemoveGrant);
+
+            bool hasThumbnail = _texture != null || (_activity?.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty);
+            View.SetImageThumbnailActive(hasThumbnail);
+            View.SetButtonThumbnailActive(value);
+            View.SetButtonDeleteThumbnailActive(value && hasThumbnail);
+            View.SetThumbnailContainerActive(value || hasThumbnail);
+            View.SetButtonStartActivityActive(!value && !_hasStartedActivity);
+            View.SetButtonDuplicateActive(value && canDuplicate);
+
+            bool licBy = _activity?.License == null || _activity.License.Attribution;
+            bool licSa = _activity?.License == null || _activity.License.ShareAlike;
+            bool licNd = _activity?.License != null && _activity.License.NoDerivatives;
+            bool licNc = _activity?.License != null && _activity.License.NonCommercial;
+            View.SetLicenseToggles(licBy, licSa, licNd, licNc, value && canUpdate);
+            string creator = _activity?.Creator?.Name;
+            View.SetCreatorAttributionText(licBy && !string.IsNullOrEmpty(creator) ? $"Created by: {creator}" : string.Empty, licBy && !string.IsNullOrEmpty(creator));
+
             View.RemoveActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
             View.SetIsToggleEditorOn(!value);
             View.SetActionOnToggleEditorValueChanged(OnToggleEditorValueChanged);
+
+            UpdateRoomTwinToggle();
+
+            if (!value)
+            {
+                View.ResetInfoScrollPosition();
+            }
         }
 
         private void OnButtonPreviousStepClicked()
@@ -229,16 +500,32 @@ namespace MirageXR  //TODO: add Spatial namespace
             MenuManager.Instance.ShowRoomScanRepositionPanelView();
         }
 
+        private void OnButtonDeleteRoomScanClicked()
+        {
+            roomTwinManager?.ClearDigitalTwin();
+        }
+
         private void UpdateRoomTwinToggle()
         {
-            if (View != null && roomTwinManager != null)
-            {
-                View.SetIsToggleShowRoomScanOnWithoutNotify(roomTwinManager.IsRoomShowing());
-            }
+            if (View == null || roomTwinManager == null) return;
+
+            bool hasDigitalTwin = !string.IsNullOrEmpty(_activity?.DigitalTwin) || !string.IsNullOrEmpty(roomTwinManager.CurrentDigitalTwinId);
+            bool isShowing = roomTwinManager.IsRoomShowing();
+            bool isEditorMode = RootObject.Instance?.LEE?.ActivityManager?.IsEditorMode ?? false;
+
+            View.SetIsToggleShowRoomScanOnWithoutNotify(hasDigitalTwin && isShowing);
+            View.SetShowRoomScanInteractable(hasDigitalTwin);
+            View.SetWireframeVignetteInteractable(hasDigitalTwin);
+            View.SetRepositionInteractable(isEditorMode && hasDigitalTwin);
+            View.SetButtonDeleteRoomScanActive(isEditorMode && hasDigitalTwin);
         }
+
+        private float _lastTwinStyleClickTime;
 
         private void OnButtonWireframeVignetteClicked()
         {
+            if (Time.unscaledTime - _lastTwinStyleClickTime < 0.5f) return;
+            _lastTwinStyleClickTime = Time.unscaledTime;
             MenuManager.Instance.ShowRoomScanSettingsPanelView();
         }
 
@@ -250,8 +537,19 @@ namespace MirageXR  //TODO: add Spatial namespace
             MenuManager.Instance.ShowRoomScanGalleryView();
         }
 
+        private void OnActivityLoaded(Activity activity)
+        {
+            _hasStartedActivity = false;
+            _activity = activity;
+            UpdateView();
+        }
+
         private void OnActivityUpdated(Activity activity)
         {
+            if (activity != null && (_activity == null || _activity.Id != activity.Id))
+            {
+                _hasStartedActivity = false;
+            }
             _activity = activity;
             UpdateView();
         }
@@ -312,11 +610,90 @@ namespace MirageXR  //TODO: add Spatial namespace
 
             View.SetInputFieldActivityNameText(_activity.Name);
             View.SetInputFieldActivityDescriptionText(_activity.Description);
+            View.SetInputFieldActivityTagsText(string.Join(", ", _activity.Tags ?? new System.Collections.Generic.List<string>()));
+            View.InitializeDropdowns();
+
+            int visIndex = _activity.Visibility?.ToLower() switch
+            {
+                "protected" => 1,
+                "unlisted" => 2,
+                "public" => 3,
+                _ => 0
+            };
+            View.SetDropdownVisibilityValue(visIndex);
+
+            bool canUpdate = CanUpdate();
+            bool canShare = CanShare();
+            bool canDuplicate = CanDuplicate();
+            View.SetDropdownVisibilityActive(canShare);
+
+            bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+            View.SetDropdownVisibilityInteractable(isEditor && canShare);
+            View.SetInputFieldActivityNameTextInteractable(isEditor && canUpdate);
+            View.SetInputFieldActivityTagsInteractable(isEditor && canUpdate);
+            View.SetInputFieldActivityDescriptionInteractable(isEditor && canUpdate);
+            View.SetPanelAddNewStepActive(isEditor && canUpdate);
+
+            int pubIndex = string.Equals(_activity.PublicationStatus, "published", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+            View.SetDropdownPublicationStatusValue(pubIndex);
+            View.SetDropdownPublicationStatusInteractable(isEditor && canShare);
+
+            View.SetInputFieldCustomerScopeText(string.IsNullOrWhiteSpace(_activity.CustomerScope) ? "wekit" : _activity.CustomerScope);
+            View.SetInputFieldCustomerScopeInteractable(isEditor && canUpdate);
+
+            bool showBY = _activity.License == null || _activity.License.Attribution;
+            string creatorName = _activity.Creator?.Name;
+            View.SetCreatorAttributionText(showBY && !string.IsNullOrEmpty(creatorName) ? $"Created by: {creatorName}" : string.Empty, showBY && !string.IsNullOrEmpty(creatorName));
+
+            bool by = _activity.License == null || _activity.License.Attribution;
+            bool sa = _activity.License == null || _activity.License.ShareAlike;
+            bool nd = _activity.License != null && _activity.License.NoDerivatives;
+            bool nc = _activity.License != null && _activity.License.NonCommercial;
+            View.SetLicenseToggles(by, sa, nd, nc, isEditor && canUpdate);
+
+            UpdateEditToggleState();
+
+            View.SetAddGrantPanelActive(canShare);
+            View.SetGrantsList(_activity.Grants, isEditor, canShare, OnRemoveGrant);
+
+            View.SetImageThumbnailActive(isEditor);
+            View.SetButtonThumbnailActive(isEditor);
+            View.SetThumbnailContainerActive(isEditor || (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty));
+            View.SetButtonStartActivityActive(!isEditor && !_hasStartedActivity);
+
+            View.SetButtonDuplicateActive(isEditor && canDuplicate);
 
             if (_texture is not null)
             {
                 Destroy(_texture);
                 _texture = null;
+            }
+
+            if (!isEditor)
+            {
+                View.SetButtonThumbnailActive(false);
+                View.SetButtonDeleteThumbnailActive(false);
+                if (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty)
+                {
+                    var fileId = _activity.Thumbnail.Id;
+                    _texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(_activity.Id, fileId);
+                    if (_texture != null && !cancellationToken.IsCancellationRequested)
+                    {
+                        SetThumbnailView(_texture);
+                        View.SetThumbnailContainerActive(true);
+                    }
+                    else
+                    {
+                        View.SetImageThumbnailActive(false);
+                        View.SetThumbnailContainerActive(false);
+                    }
+                }
+                else
+                {
+                    View.SetImageThumbnailActive(false);
+                    View.SetThumbnailContainerActive(false);
+                }
+                return;
             }
 
             if (_activity.Thumbnail != null && _activity.Thumbnail.Id != Guid.Empty)
@@ -384,13 +761,14 @@ namespace MirageXR  //TODO: add Spatial namespace
         private void OnButtonCloseClicked()
         {
             LearningExperienceEngine.EventManager.ClearAll();
-            roomTwinManager.SetRoomTwinVisibility(false);
-            RootObject.Instance.LEE.ActivityManager.CloseActivity();
-            MenuManager.Instance.ShowScreen(ScreenName.MainScreen);
+            roomTwinManager?.SetRoomTwinVisibility(false);
+            RootObject.Instance?.LEE?.ActivityManager?.CloseActivity();
+            MenuManager.Instance?.ShowScreen(ScreenName.MainScreen);
         }
 
         private void OnActivityClosed()
         {
+            _hasStartedActivity = false;
             _activity = null;
             if (_texture != null)
             {
@@ -454,6 +832,32 @@ namespace MirageXR  //TODO: add Spatial namespace
 
         private void OnButtonSettingsClicked()
         {
+        }
+
+        private void UpdateEditToggleState()
+        {
+            if (_activity == null) return;
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (auth == null) return;
+
+            bool isCreator = CheckIsCreator();
+            bool isSystemAdmin = auth.HasScopePrivilege("*", "update");
+            bool hasCustomerUpdate = HasScopePrivilege("update");
+
+            // ND restriction: If NoDerivatives is true, only creator, system admin, or users with scope update privilege can edit.
+            bool blockedByND = (_activity.License != null && _activity.License.NoDerivatives) && !isCreator && !isSystemAdmin && !hasCustomerUpdate;
+
+            bool canUpdate = CanUpdate();
+            bool canShare = CanShare();
+            bool canCreate = auth.CanCreateActivity || HasScopePrivilege("create") || _activity.EffectivePermissions == null || _activity.EffectivePermissions.Create;
+
+            bool canEdit = (canUpdate || canShare || canCreate) && !blockedByND;
+
+            View.SetToggleEditorModeActive(canEdit);
+            if (!canEdit && RootObject.Instance.LEE.ActivityManager.IsEditorMode)
+            {
+                RootObject.Instance.LEE.ActivityManager.IsEditorMode = false;
+            }
         }
     }
 }

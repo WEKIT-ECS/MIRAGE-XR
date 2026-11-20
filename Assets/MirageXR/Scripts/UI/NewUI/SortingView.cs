@@ -1,5 +1,6 @@
 using System;
 using MirageXR;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,7 @@ public class SortingView : PopupBase
     [SerializeField] private Toggle _toggleMyActivities;
     [SerializeField] private Toggle _toggleByDate;
     [SerializeField] private Toggle _toggleByRelevance;
+    [SerializeField] private Toggle _toggleGroupByTags;
 
     private ActivityListView_v2 _parentView;
 
@@ -34,6 +36,31 @@ public class SortingView : PopupBase
 
         _toggleSmallCards.onValueChanged.AddListener(ShowSmallCard);
         _toggleBigCards.onValueChanged.AddListener(ShowBigCard);
+
+        if (_toggleGroupByTags == null && _toggleByDate != null)
+        {
+            var toggleObj = Instantiate(_toggleByDate.gameObject, _toggleByDate.transform.parent);
+            toggleObj.name = "ToggleGroupByTags";
+            var text = toggleObj.GetComponentInChildren<TMP_Text>();
+            if (text != null) text.text = "Group by tags";
+            _toggleGroupByTags = toggleObj.GetComponent<Toggle>();
+            if (_toggleGroupByTags != null)
+            {
+                _toggleGroupByTags.group = null;
+            }
+        }
+
+        if (_toggleGroupByTags != null)
+        {
+            _toggleGroupByTags.isOn = LearningExperienceEngine.UserSettings.groupByTags;
+            _toggleGroupByTags.onValueChanged.AddListener(OnGroupByTagsChanged);
+        }
+    }
+
+    private void OnGroupByTagsChanged(bool value)
+    {
+        LearningExperienceEngine.UserSettings.groupByTags = value;
+        _parentView.OnSortByChanged();
     }
 
     private void SetToggles()

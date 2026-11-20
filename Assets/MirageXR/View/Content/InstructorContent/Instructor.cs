@@ -176,6 +176,11 @@ namespace MirageXR.View
                 }
                 AppLog.LogDebug($"AI question: '{message}'");
                 var response = await ArtificialIntelligenceManager.SendMessageToAssistantAsync(_instructorContent.ContentData.LanguageModel.ApiName, message, _instructorContent.ContentData.Prompt, _assistantId, _threadId);
+                if (string.IsNullOrEmpty(response))
+                {
+                    AppLog.LogWarning("[Instructor] Received null or empty response from assistant.");
+                    return null;
+                }
                 AppLog.LogDebug($"AI response: '{response}'");
                 var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, GetVoiceInstruction());
                 return clip;
@@ -198,6 +203,11 @@ namespace MirageXR.View
             try
             {
                 var response = await ArtificialIntelligenceManager.SendMessageToAssistantAsync(_instructorContent.ContentData.LanguageModel.ApiName, message, _instructorContent.ContentData.Prompt, _assistantId, _threadId);
+                if (string.IsNullOrEmpty(response))
+                {
+                    AppLog.LogWarning("[Instructor] Received null or empty response from assistant.");
+                    return null;
+                }
                 var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, GetVoiceInstruction());
 
                 return clip;
@@ -268,27 +278,58 @@ namespace MirageXR.View
                 return;
             }
 
-            float chestHeight = 1.3f;
+            var avatarRoot = _animator != null ? _animator.transform : transform;
+            _controlPanelInstance = Instantiate(_controlPanelPrefab, avatarRoot);
+            _controlPanelInstance.name = "VI_Control_Panel";
+            _controlPanelInstance.transform.localScale = Vector3.one * 0.001f;
+
+            UpdateControlPanelTransform();
+        }
+
+        private void LateUpdate()
+        {
+            UpdateControlPanelTransform();
+        }
+
+        private void UpdateControlPanelTransform()
+        {
+            if (_controlPanelInstance == null) return;
+
+            var avatarRoot = _animator != null ? _animator.transform : transform;
+            Transform chestBone = null;
             if (_animator != null && _animator.isHuman)
             {
-                var chestBone = _animator.GetBoneTransform(HumanBodyBones.Chest) 
-                             ?? _animator.GetBoneTransform(HumanBodyBones.UpperChest)
-                             ?? _animator.GetBoneTransform(HumanBodyBones.Spine);
-                if (chestBone != null)
-                {
-                    chestHeight = transform.InverseTransformPoint(chestBone.position).y;
-                }
+                chestBone = _animator.GetBoneTransform(HumanBodyBones.Chest) 
+                         ?? _animator.GetBoneTransform(HumanBodyBones.UpperChest)
+                         ?? _animator.GetBoneTransform(HumanBodyBones.Spine);
             }
 
-            _controlPanelInstance = Instantiate(_controlPanelPrefab, transform);
-            _controlPanelInstance.name = "VI_Control_Panel";
-            var prefabTransform = _controlPanelPrefab.transform;
-            _controlPanelInstance.transform.localPosition = new Vector3(
-                prefabTransform.localPosition.x,
-                chestHeight + prefabTransform.localPosition.y,
-                prefabTransform.localPosition.z);
-            _controlPanelInstance.transform.localRotation = prefabTransform.localRotation;
-            _controlPanelInstance.transform.localScale = Vector3.one * 0.001f;
+            Vector3 chestWorldPos = chestBone != null 
+                ? chestBone.position 
+                : avatarRoot.position + avatarRoot.up * 1.3f;
+
+            Vector3 avatarForward = avatarRoot.forward;
+            Vector3 targetPos = chestWorldPos + avatarForward * 0.22f;
+
+            _controlPanelInstance.transform.position = targetPos;
+
+            if (Camera.main != null)
+            {
+                Vector3 dirToCam = Camera.main.transform.position - targetPos;
+                dirToCam.y = 0;
+                if (dirToCam.sqrMagnitude > 0.001f)
+                {
+                    _controlPanelInstance.transform.rotation = Quaternion.LookRotation(-dirToCam.normalized, Vector3.up);
+                }
+                else
+                {
+                    _controlPanelInstance.transform.rotation = Quaternion.LookRotation(-avatarForward, Vector3.up);
+                }
+            }
+            else
+            {
+                _controlPanelInstance.transform.rotation = Quaternion.LookRotation(-avatarForward, Vector3.up);
+            }
         }
 
         private void OnDestroy()
@@ -315,6 +356,11 @@ namespace MirageXR.View
             try
             {
                 var response = await ArtificialIntelligenceManager.SendMessageToAssistantAsync(_instructorContent.ContentData.LanguageModel.ApiName, message, _instructorContent.ContentData.Prompt, _assistantId, _threadId);
+                if (string.IsNullOrEmpty(response))
+                {
+                    AppLog.LogWarning("[Instructor] Received null or empty response from assistant.");
+                    return null;
+                }
                 var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, GetVoiceInstruction());
 
                 return clip;

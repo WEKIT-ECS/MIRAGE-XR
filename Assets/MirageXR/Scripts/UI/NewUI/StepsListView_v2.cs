@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
@@ -33,6 +34,25 @@ public class StepsListView_v2 : BaseView
     [SerializeField] private TMP_Text _textActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityName;
     [SerializeField] private TMP_InputField _inputFieldActivityDescription;
+    [SerializeField] private TMP_InputField _inputFieldActivityTags;
+    [SerializeField] private TMP_Dropdown _dropdownVisibility;
+    [SerializeField] private TMP_Dropdown _dropdownPublicationStatus;
+    [SerializeField] private TMP_InputField _inputFieldCustomerScope;
+    [SerializeField] private Button _btnDuplicate;
+    [SerializeField] private Button _btnStartActivity;
+    [Header("Grants")]
+    [SerializeField] private Transform _grantsContainer;
+    [SerializeField] private GameObject _panelAddGrant;
+    [SerializeField] private TMP_Dropdown _dropdownGrantType;
+    [SerializeField] private TMP_InputField _inputFieldGranteeId;
+    [SerializeField] private TMP_Dropdown _dropdownGrantPrivileges;
+    [SerializeField] private Button _btnAddGrant;
+    [Header("License & Creator")]
+    [SerializeField] private TMP_Text _textCreatorAttribution;
+    [SerializeField] private Toggle _toggleLicenseBY;
+    [SerializeField] private Toggle _toggleLicenseSA;
+    [SerializeField] private Toggle _toggleLicenseND;
+    [SerializeField] private Toggle _toggleLicenseNC;
     [SerializeField] private RectTransform _addStep;
     [SerializeField] private Button _btnAddStep;
     [SerializeField] private Button _btnBack;
@@ -82,6 +102,7 @@ public class StepsListView_v2 : BaseView
     private Button _btnAssignRoomModel;
     private TMP_Text _txtAssignRoomModelLink;
     private Button _btnRepositionDigitalTwin;
+    private Button _btnDeleteDigitalTwin;
     private GameObject _rowRepositionDigitalTwin;
     private GameObject _digitalTwinGalleryOverlay;
     private GameObject _digitalTwinRepositionOverlay;
@@ -101,6 +122,57 @@ public class StepsListView_v2 : BaseView
 
         _inputFieldActivityName.onEndEdit.AddListener(OnActivityNameEndEdit);
         _inputFieldActivityDescription.onEndEdit.AddListener(OnActivityDescriptionEndEdit);
+        if (_inputFieldActivityTags != null)
+        {
+            _inputFieldActivityTags.onEndEdit.AddListener(OnActivityTagsEndEdit);
+        }
+
+        if (_dropdownVisibility != null)
+        {
+            SetupDropdown(_dropdownVisibility, new List<string> { "Private", "Protected", "Unlisted", "Public" });
+            _dropdownVisibility.onValueChanged.AddListener(OnVisibilityDropdownValueChanged);
+        }
+
+        if (_dropdownPublicationStatus != null)
+        {
+            SetupDropdown(_dropdownPublicationStatus, new List<string> { "Draft", "Published" });
+            _dropdownPublicationStatus.onValueChanged.AddListener(OnPublicationStatusDropdownValueChanged);
+        }
+
+        if (_dropdownGrantType != null)
+        {
+            SetupDropdown(_dropdownGrantType, new List<string> { "User", "Group" });
+        }
+
+        if (_dropdownGrantPrivileges != null)
+        {
+            SetupDropdown(_dropdownGrantPrivileges, new List<string> { "Read", "Read & Update" });
+        }
+
+        if (_inputFieldCustomerScope != null)
+        {
+            _inputFieldCustomerScope.onEndEdit.AddListener(OnCustomerScopeEndEdit);
+        }
+
+        if (_btnAddGrant != null)
+        {
+            _btnAddGrant.onClick.AddListener(OnAddGrantPressed);
+        }
+
+        if (_toggleLicenseBY != null) _toggleLicenseBY.onValueChanged.AddListener(OnLicenseBYToggled);
+        if (_toggleLicenseSA != null) _toggleLicenseSA.onValueChanged.AddListener(OnLicenseSAToggled);
+        if (_toggleLicenseND != null) _toggleLicenseND.onValueChanged.AddListener(OnLicenseNDToggled);
+        if (_toggleLicenseNC != null) _toggleLicenseNC.onValueChanged.AddListener(OnLicenseNCToggled);
+
+        if (_btnDuplicate != null)
+        {
+            _btnDuplicate.onClick.AddListener(OnDuplicateButtonPressed);
+        }
+
+        if (_btnStartActivity != null)
+        {
+            _btnStartActivity.onClick.AddListener(OnStartActivityPressed);
+        }
 
         _btnAddStep.onClick.AddListener(OnAddStepClick);
         _btnThumbnail.onClick.AddListener(OnThumbnailButtonPressed);
@@ -115,6 +187,10 @@ public class StepsListView_v2 : BaseView
         _toggleSteps.onValueChanged.AddListener(OnToggleStepValueChanged);
         _toggleInfo.onValueChanged.AddListener(OnToggleInfoValueChanged);
         _toggleCalibration.onValueChanged.AddListener(OnToggleCalibrationValueChanged);
+
+        _steps.SetActive(true);
+        _info.SetActive(false);
+        _calibration.SetActive(false);
 
         _btnBack.onClick.AddListener(OnBackPressed);
         if (_btnCloseActivity != null)
@@ -144,6 +220,16 @@ public class StepsListView_v2 : BaseView
         if (_activity == null && activityManager?.Activity != null)
         {
             _activity = activityManager.Activity;
+        }
+
+        bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+        if (!isEditor)
+        {
+            _toggleInfo.isOn = true;
+        }
+        else
+        {
+            _toggleSteps.isOn = true;
         }
 
         UpdateView();
@@ -211,6 +297,16 @@ public class StepsListView_v2 : BaseView
     private void OnActivityUpdated(Activity activity)
     {
         _activity = activity;
+
+        bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+        if (!isEditor)
+        {
+            _toggleInfo.isOn = true;
+        }
+        else
+        {
+            _toggleSteps.isOn = true;
+        }
 
         UpdateView();
         UpdateInfoFields();
@@ -404,6 +500,41 @@ public class StepsListView_v2 : BaseView
         }
     }
 
+    private static void SetupDropdown(TMP_Dropdown dropdown, List<string> options)
+    {
+        if (dropdown == null) return;
+        dropdown.ClearOptions();
+        dropdown.AddOptions(options);
+        dropdown.RefreshShownValue();
+    }
+
+    private bool CheckIsCreator()
+    {
+        if (_activity == null) return false;
+        var auth = RootObject.Instance.LEE.AuthorizationManager;
+        if (auth == null) return false;
+
+        return (!string.IsNullOrEmpty(auth.UserSub) &&
+            ((_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase)) ||
+             (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase)))) ||
+            (!string.IsNullOrEmpty(auth.UserName) && !string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserName, StringComparison.OrdinalIgnoreCase)) ||
+            (!string.IsNullOrEmpty(auth.UserFullName) && _activity.Creator != null && string.Equals(_activity.Creator.Name, auth.UserFullName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private bool HasScopePrivilege(string privilege)
+    {
+        var auth = RootObject.Instance.LEE.AuthorizationManager;
+        if (auth == null) return false;
+        if (auth.HasScopePrivilege("*", privilege)) return true;
+        if (auth.UserPrivileges != null && auth.UserPrivileges.Any(p => string.Equals(p, privilege, StringComparison.OrdinalIgnoreCase) || string.Equals(p, "admin", StringComparison.OrdinalIgnoreCase))) return true;
+        string scope = string.IsNullOrWhiteSpace(_activity?.CustomerScope) ? "wekit" : _activity.CustomerScope;
+        return auth.HasScopePrivilege(scope, privilege);
+    }
+
+    private bool CanUpdate() => CheckIsCreator() || HasScopePrivilege("update") || HasScopePrivilege("admin") || _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Update;
+    private bool CanShare() => CheckIsCreator() || HasScopePrivilege("share") || HasScopePrivilege("admin") || _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Share;
+    private bool CanDuplicate() => CheckIsCreator() || HasScopePrivilege("duplicate") || HasScopePrivilege("admin") || _activity?.EffectivePermissions == null || (_activity.EffectivePermissions.Duplicate && _activity.EffectivePermissions.Read);
+
     private void UpdateInfoFields()
     {
         if (_activity != null)
@@ -423,7 +554,376 @@ public class StepsListView_v2 : BaseView
                 _inputFieldActivityDescription.text = _activity.Description;
             }
 
+            if (_inputFieldActivityTags != null)
+            {
+                _inputFieldActivityTags.text = string.Join(", ", _activity.Tags ?? new List<string>());
+            }
+
+            bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+            bool canUpdate = CanUpdate();
+            bool canShare = CanShare();
+            bool canDuplicate = CanDuplicate();
+
+            if (_dropdownVisibility != null)
+            {
+                int visIndex = _activity.Visibility?.ToLower() switch
+                {
+                    "protected" => 1,
+                    "unlisted" => 2,
+                    "public" => 3,
+                    _ => 0
+                };
+                _dropdownVisibility.SetValueWithoutNotify(visIndex);
+                _dropdownVisibility.RefreshShownValue();
+                _dropdownVisibility.gameObject.SetActive(true);
+                _dropdownVisibility.interactable = canShare && isEditor;
+            }
+
+            if (_inputFieldActivityName != null) _inputFieldActivityName.interactable = isEditor && canUpdate;
+            if (_inputFieldActivityDescription != null) _inputFieldActivityDescription.interactable = isEditor && canUpdate;
+            if (_inputFieldActivityTags != null) _inputFieldActivityTags.interactable = isEditor && canUpdate;
+
+            if (_dropdownPublicationStatus != null)
+            {
+                int pubIndex = string.Equals(_activity.PublicationStatus, "published", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+                _dropdownPublicationStatus.SetValueWithoutNotify(pubIndex);
+                _dropdownPublicationStatus.RefreshShownValue();
+                _dropdownPublicationStatus.gameObject.SetActive(true);
+                _dropdownPublicationStatus.interactable = isEditor && canShare;
+            }
+
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            bool canEditScope = isEditor && auth != null && (auth.HasScopePrivilege("*", "admin") || HasScopePrivilege("admin") || HasScopePrivilege("managers") || HasScopePrivilege("manager"));
+            if (_inputFieldCustomerScope != null)
+            {
+                _inputFieldCustomerScope.text = _activity.CustomerScope ?? "wekit";
+                _inputFieldCustomerScope.interactable = canEditScope;
+            }
+
+            if (_textCreatorAttribution != null)
+            {
+                bool showBY = _activity.License == null || _activity.License.Attribution;
+                string creatorName = _activity.Creator?.Name;
+                if (showBY && !string.IsNullOrEmpty(creatorName))
+                {
+                    _textCreatorAttribution.gameObject.SetActive(true);
+                    _textCreatorAttribution.text = $"Created by: {creatorName}";
+                }
+                else
+                {
+                    _textCreatorAttribution.gameObject.SetActive(false);
+                }
+            }
+
+            if (_toggleLicenseBY != null)
+            {
+                _toggleLicenseBY.SetIsOnWithoutNotify(_activity.License == null || _activity.License.Attribution);
+                _toggleLicenseBY.interactable = isEditor && canUpdate;
+            }
+            if (_toggleLicenseSA != null)
+            {
+                _toggleLicenseSA.SetIsOnWithoutNotify(_activity.License == null || _activity.License.ShareAlike);
+                _toggleLicenseSA.interactable = isEditor && canUpdate;
+            }
+            if (_toggleLicenseND != null)
+            {
+                _toggleLicenseND.SetIsOnWithoutNotify(_activity.License != null && _activity.License.NoDerivatives);
+                _toggleLicenseND.interactable = isEditor && canUpdate;
+            }
+            if (_toggleLicenseNC != null)
+            {
+                _toggleLicenseNC.SetIsOnWithoutNotify(_activity.License != null && _activity.License.NonCommercial);
+                _toggleLicenseNC.interactable = isEditor && canUpdate;
+            }
+
+            UpdateGrantsView();
+
+            if (_imgThumbnail != null) _imgThumbnail.gameObject.SetActive(isEditor);
+            if (_defaultThumbnail != null) _defaultThumbnail.SetActive(isEditor);
+            if (_btnThumbnail != null) _btnThumbnail.gameObject.SetActive(isEditor);
+
+            if (_btnStartActivity != null) _btnStartActivity.gameObject.SetActive(!isEditor);
+            if (_btnDuplicate != null) _btnDuplicate.gameObject.SetActive(isEditor && canDuplicate);
+
             LoadThumbnail();
+        }
+    }
+
+    private void OnActivityTagsEndEdit(string text)
+    {
+        var tags = text?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                       .Select(t => t.Trim())
+                       .Where(t => !string.IsNullOrEmpty(t))
+                       .ToList() ?? new List<string>();
+        activityManager.SetActivityTags(tags);
+    }
+
+    private void OnVisibilityDropdownValueChanged(int index)
+    {
+        string[] options = { "private", "protected", "unlisted", "public" };
+        if (index >= 0 && index < options.Length && _activity != null)
+        {
+            activityManager.SetActivityVisibility(options[index]);
+        }
+    }
+
+    private void OnPublicationStatusDropdownValueChanged(int index)
+    {
+        string[] options = { "draft", "published" };
+        if (index >= 0 && index < options.Length && _activity != null)
+        {
+            activityManager.SetActivityPublicationStatus(options[index]);
+        }
+    }
+
+    private void OnCustomerScopeEndEdit(string text)
+    {
+        if (_activity == null || string.IsNullOrWhiteSpace(text)) return;
+        var trimmedScope = text.Trim();
+        var auth = RootObject.Instance.LEE.AuthorizationManager;
+        if (!auth.HasScopePrivilege(trimmedScope, "create") && !auth.HasScopePrivilege("*", "create") && !auth.HasScopePrivilege(trimmedScope, "admin"))
+        {
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show("Permission Denied", $"You do not have creator or admin privileges for customer scope '{trimmedScope}'.", new DialogButtonContent("OK"));
+            }
+            if (_inputFieldCustomerScope != null)
+            {
+                _inputFieldCustomerScope.text = _activity.CustomerScope ?? "wekit";
+            }
+            return;
+        }
+        activityManager.SetActivityCustomerScope(trimmedScope);
+    }
+
+    private void OnLicenseBYToggled(bool value)
+    {
+        if (_activity == null) return;
+        _activity.License ??= new ActivityLicense();
+        _activity.License.Attribution = value;
+        activityManager.SetActivityLicense(_activity.License);
+        if (_textCreatorAttribution != null)
+        {
+            _textCreatorAttribution.gameObject.SetActive(value && !string.IsNullOrEmpty(_activity.Creator?.Name));
+        }
+    }
+
+    private void OnLicenseSAToggled(bool value)
+    {
+        if (_activity == null) return;
+        _activity.License ??= new ActivityLicense();
+        _activity.License.ShareAlike = value;
+        if (value && _activity.License.NoDerivatives)
+        {
+            _activity.License.NoDerivatives = false;
+            _toggleLicenseND?.SetIsOnWithoutNotify(false);
+        }
+        activityManager.SetActivityLicense(_activity.License);
+    }
+
+    private void OnLicenseNDToggled(bool value)
+    {
+        if (_activity == null) return;
+        _activity.License ??= new ActivityLicense();
+        _activity.License.NoDerivatives = value;
+        if (value && _activity.License.ShareAlike)
+        {
+            _activity.License.ShareAlike = false;
+            _toggleLicenseSA?.SetIsOnWithoutNotify(false);
+        }
+        activityManager.SetActivityLicense(_activity.License);
+    }
+
+    private void OnLicenseNCToggled(bool value)
+    {
+        if (_activity == null) return;
+        _activity.License ??= new ActivityLicense();
+        _activity.License.NonCommercial = value;
+        activityManager.SetActivityLicense(_activity.License);
+    }
+
+    private void OnAddGrantPressed()
+    {
+        if (_inputFieldGranteeId == null || string.IsNullOrWhiteSpace(_inputFieldGranteeId.text))
+        {
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show("Grantee Required", "Please enter a valid user or group ID to add a grant.", new DialogButtonContent("OK"));
+            }
+            return;
+        }
+
+        string type = _dropdownGrantType != null && _dropdownGrantType.value == 1 ? "group" : "user";
+        string id = _inputFieldGranteeId.text.Trim();
+        var privs = new List<string> { "read" };
+        if (_dropdownGrantPrivileges != null && _dropdownGrantPrivileges.value == 1)
+        {
+            privs.Add("update");
+        }
+
+        var grant = new Grant
+        {
+            GranteeType = type,
+            GranteeId = id,
+            Privileges = privs
+        };
+
+        activityManager.AddActivityGrant(grant);
+        _inputFieldGranteeId.text = string.Empty;
+        UpdateGrantsView();
+    }
+
+    private void OnRemoveGrantPressed(int index)
+    {
+        activityManager.RemoveActivityGrant(index);
+        UpdateGrantsView();
+    }
+
+    private void UpdateGrantsView()
+    {
+        if (_grantsContainer == null) return;
+
+        foreach (Transform child in _grantsContainer)
+        {
+            Destroy(child.gameObject);
+        }
+
+        bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+        bool canShare = CanShare();
+
+        if (_panelAddGrant != null)
+        {
+            _panelAddGrant.SetActive(isEditor && canShare);
+        }
+
+        var grants = _activity?.Grants;
+        if (grants == null || grants.Count == 0)
+        {
+            var emptyObj = new GameObject("EmptyGrantsNotice", typeof(RectTransform));
+            emptyObj.transform.SetParent(_grantsContainer, false);
+            var text = emptyObj.AddComponent<TextMeshProUGUI>();
+            text.text = "No additional grants";
+            text.fontSize = 14;
+            text.color = new Color(0.7f, 0.7f, 0.7f, 1f);
+            return;
+        }
+
+        for (int i = 0; i < grants.Count; i++)
+        {
+            int index = i;
+            var grant = grants[i];
+            var grantItemObj = new GameObject($"GrantItem_{i}", typeof(RectTransform));
+            grantItemObj.transform.SetParent(_grantsContainer, false);
+
+            var hLayout = grantItemObj.AddComponent<HorizontalLayoutGroup>();
+            hLayout.childControlWidth = false;
+            hLayout.childForceExpandWidth = false;
+            hLayout.childControlHeight = true;
+            hLayout.childForceExpandHeight = false;
+            hLayout.spacing = 8f;
+
+            var textObj = new GameObject("GrantText", typeof(RectTransform));
+            textObj.transform.SetParent(grantItemObj.transform, false);
+            var text = textObj.AddComponent<TextMeshProUGUI>();
+            string typeLabel = grant.GranteeType?.ToLower() == "group" ? "[GROUP]" : "[USER]";
+            string privsLabel = grant.Privileges != null ? string.Join(", ", grant.Privileges) : "read";
+            text.text = $"{typeLabel} {grant.GranteeId} ({privsLabel})";
+            text.fontSize = 14;
+
+            if (isEditor && canShare)
+            {
+                var removeBtnObj = new GameObject("RemoveBtn", typeof(RectTransform));
+                removeBtnObj.transform.SetParent(grantItemObj.transform, false);
+                var removeBtn = removeBtnObj.AddComponent<Button>();
+                var removeBtnText = new GameObject("Text", typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
+                removeBtnText.transform.SetParent(removeBtnObj.transform, false);
+                removeBtnText.text = "✕";
+                removeBtnText.fontSize = 14;
+                removeBtnText.color = Color.red;
+                removeBtn.onClick.AddListener(() => OnRemoveGrantPressed(index));
+            }
+        }
+    }
+
+    private void OnStartActivityPressed()
+    {
+        if (_activity?.Steps != null && _activity.Steps.Count > 0)
+        {
+            RootObject.Instance.LEE.StepManager.GoToStep(_activity.Steps[0].Id);
+        }
+        _toggleSteps.isOn = true;
+    }
+
+    private void OnDuplicateButtonPressed()
+    {
+        OnDuplicateButtonPressedAsync().Forget();
+    }
+
+    private async UniTask OnDuplicateButtonPressedAsync()
+    {
+        if (_activity == null) return;
+        if (!CanDuplicate())
+        {
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show("Permission Denied", "You do not have permission to duplicate this activity.", new DialogButtonContent("OK"));
+            }
+            return;
+        }
+
+        var auth = RootObject.Instance.LEE.AuthorizationManager;
+        var allowedDestinations = auth.DuplicationDestinationScopes;
+
+        if (allowedDestinations == null || allowedDestinations.Count == 0)
+        {
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show("Duplication Not Allowed", "You do not have manager or creator privileges in any customer scope to duplicate activities.", new DialogButtonContent("OK"));
+            }
+            return;
+        }
+
+        bool isOriginalCreator = (_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase))
+                              || (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase));
+        bool isSystemAdmin = auth.HasScopePrivilege("*", "duplicate");
+        if (_activity.License != null && !_activity.License.ShareAlike && !isOriginalCreator && !isSystemAdmin)
+        {
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show("Duplication Restricted", "This activity has Share-Alike disabled and cannot be duplicated by non-creators.", new DialogButtonContent("OK"));
+            }
+            return;
+        }
+
+        string targetScope;
+        if (!string.IsNullOrEmpty(_activity.CustomerScope) && allowedDestinations.Any(s => string.Equals(s, _activity.CustomerScope, StringComparison.OrdinalIgnoreCase)))
+        {
+            targetScope = _activity.CustomerScope;
+        }
+        else
+        {
+            targetScope = allowedDestinations[0];
+        }
+
+        try
+        {
+            LoadView.Instance.Show();
+            var duplicateName = "Copy of " + _activity.Name;
+
+            await RootObject.Instance.LEE.ActivityManager.DuplicateActivityAsync(_activity.Id, targetScope, duplicateName);
+            OnCloseActivityPressed();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to duplicate activity: {ex.Message}");
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show("Error", $"Duplication failed: {ex.Message}", new DialogButtonContent("OK"));
+            }
+        }
+        finally
+        {
+            LoadView.Instance.Hide();
         }
     }
 
@@ -503,6 +1003,16 @@ public class StepsListView_v2 : BaseView
 
     private async UniTaskVoid LoadThumbnailAsync()
     {
+        bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
+        if (!isEditor)
+        {
+            if (_defaultThumbnail != null) _defaultThumbnail.SetActive(false);
+            if (_imgThumbnail != null) _imgThumbnail.gameObject.SetActive(false);
+            SetButtonDeleteThumbnailActive(false);
+            if (_btnThumbnail != null) _btnThumbnail.gameObject.SetActive(false);
+            return;
+        }
+
         if (_activity == null)
         {
             _defaultThumbnail.SetActive(true);
@@ -694,6 +1204,22 @@ public class StepsListView_v2 : BaseView
         _btnThumbnail.interactable = value;
         _inputFieldActivityName.interactable = value;
         _inputFieldActivityDescription.interactable = value;
+        if (_inputFieldActivityTags != null)
+        {
+            _inputFieldActivityTags.interactable = value;
+        }
+
+        if (!value)
+        {
+            _toggleInfo.isOn = true;
+        }
+        else
+        {
+            _toggleSteps.isOn = true;
+        }
+
+        UpdateInfoFields();
+
         if (_btnAssignRoomModel != null)
         {
             _btnAssignRoomModel.interactable = value;
@@ -1232,6 +1758,57 @@ public class StepsListView_v2 : BaseView
             }
         }
 
+        // 5. Delete Digital Twin button for editmode
+        if (_btnDeleteThumbnail != null && _panelDigitalTwinSettings != null)
+        {
+            var deleteObj = Instantiate(_btnDeleteThumbnail.gameObject, _panelDigitalTwinSettings.transform, false);
+            deleteObj.name = "Button_DeleteDigitalTwin";
+            var delRect = deleteObj.GetComponent<RectTransform>();
+            if (delRect != null)
+            {
+                delRect.anchorMin = new Vector2(1f, 0f);
+                delRect.anchorMax = new Vector2(1f, 0f);
+                delRect.pivot = new Vector2(1f, 0.5f);
+                delRect.anchoredPosition = new Vector2(-25f, 40f);
+                delRect.sizeDelta = new Vector2(40f, 40f);
+            }
+
+            var img = deleteObj.GetComponent<Image>();
+            if (img != null)
+            {
+                img.color = new Color(0.85f, 0.2f, 0.2f, 1f);
+            }
+            for (int i = deleteObj.transform.childCount - 1; i >= 0; i--)
+            {
+                Destroy(deleteObj.transform.GetChild(i).gameObject);
+            }
+
+            var textObj = new GameObject("Text_X", typeof(RectTransform));
+            textObj.transform.SetParent(deleteObj.transform, false);
+            var textRt = textObj.GetComponent<RectTransform>();
+            textRt.anchorMin = Vector2.zero;
+            textRt.anchorMax = Vector2.one;
+            textRt.pivot = new Vector2(0.5f, 0.5f);
+            textRt.anchoredPosition = Vector2.zero;
+            textRt.sizeDelta = Vector2.zero;
+
+            var tmpText = textObj.AddComponent<TextMeshProUGUI>();
+            tmpText.text = "X";
+            tmpText.fontSize = 20f;
+            tmpText.fontStyle = FontStyles.Bold;
+            tmpText.alignment = TextAlignmentOptions.Center;
+            tmpText.color = Color.white;
+            tmpText.raycastTarget = false;
+
+            _btnDeleteDigitalTwin = deleteObj.GetComponent<Button>();
+            if (_btnDeleteDigitalTwin != null)
+            {
+                _btnDeleteDigitalTwin.onClick = new Button.ButtonClickedEvent();
+                _btnDeleteDigitalTwin.onClick.AddListener(OnDeleteDigitalTwinClicked);
+            }
+            deleteObj.SetActive(false);
+        }
+
         if (frameTransform != null)
         {
             frameTransform.SetAsLastSibling();
@@ -1254,11 +1831,28 @@ public class StepsListView_v2 : BaseView
         UpdateDigitalTwinButtonsUI();
     }
 
+    private void OnDeleteDigitalTwinClicked()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null || RootView_v2.Instance?.dialog == null) return;
+
+        RootView_v2.Instance.dialog.ShowMiddleMultiline(
+            "Clear Digital Twin",
+            ("Clear Digital Twin", () =>
+            {
+                rtm.ClearDigitalTwin();
+                UpdateDigitalTwinButtonsUI();
+            }, true),
+            ("Cancel", null, false));
+    }
+
     private void UpdateDigitalTwinButtonsUI()
     {
         var rtm = RootObject.Instance?.RoomTwinManager;
+        bool hasDigitalTwin = rtm != null && (!string.IsNullOrEmpty(rtm.CurrentDigitalTwinId) || !string.IsNullOrEmpty(activityManager?.Activity?.DigitalTwin));
         bool isShowing = rtm != null && rtm.IsRoomShowing();
         var style = rtm != null ? rtm.GetRoomTwinStyle() : RoomTwinStyle.FullTwin;
+        bool isEditor = activityManager != null && activityManager.IsEditorMode;
 
         if (_txtDigitalTwinToggleHeader != null)
         {
@@ -1266,22 +1860,42 @@ public class StepsListView_v2 : BaseView
         }
         if (_toggleDigitalTwin != null)
         {
-            _toggleDigitalTwin.SetIsOnWithoutNotify(isShowing);
+            _toggleDigitalTwin.SetIsOnWithoutNotify(hasDigitalTwin && isShowing);
             _toggleDigitalTwin.ForceUpdateView();
+            _toggleDigitalTwin.interactable = hasDigitalTwin;
         }
-        else if (_toggleDigitalTwinInner != null)
+        if (_toggleDigitalTwinInner != null)
         {
-            _toggleDigitalTwinInner.SetIsOnWithoutNotify(isShowing);
+            _toggleDigitalTwinInner.SetIsOnWithoutNotify(hasDigitalTwin && isShowing);
+            _toggleDigitalTwinInner.interactable = hasDigitalTwin;
         }
 
         if (_txtDigitalTwinStyleHeader != null)
         {
             _txtDigitalTwinStyleHeader.text = $"Digital Twin Style: {FormatRoomTwinStyle(style)}";
         }
+        if (_btnDigitalTwinStyle != null)
+        {
+            _btnDigitalTwinStyle.interactable = hasDigitalTwin;
+        }
+
+        if (_btnRepositionDigitalTwin != null)
+        {
+            _btnRepositionDigitalTwin.interactable = isEditor && hasDigitalTwin;
+        }
 
         if (_txtAssignRoomModelLink != null)
         {
-            _txtAssignRoomModelLink.text = "Add Digital Twin...";
+            _txtAssignRoomModelLink.text = hasDigitalTwin ? "Change Digital Twin..." : "Add Digital Twin...";
+        }
+
+        if (_btnDeleteDigitalTwin != null)
+        {
+            _btnDeleteDigitalTwin.gameObject.SetActive(isEditor && hasDigitalTwin);
+            if (isEditor && hasDigitalTwin)
+            {
+                _btnDeleteDigitalTwin.transform.SetAsLastSibling();
+            }
         }
     }
 
@@ -1309,8 +1923,13 @@ public class StepsListView_v2 : BaseView
         UpdateDigitalTwinButtonsUI();
     }
 
+    private float _lastDigitalTwinStyleClickTime;
+
     private void OnSelectDigitalTwinStyleClicked()
     {
+        if (Time.unscaledTime - _lastDigitalTwinStyleClickTime < 0.5f) return;
+        _lastDigitalTwinStyleClickTime = Time.unscaledTime;
+
         var rtm = RootObject.Instance?.RoomTwinManager;
         if (rtm == null || RootView_v2.Instance?.dialog == null) return;
 
@@ -1341,6 +1960,33 @@ public class StepsListView_v2 : BaseView
     {
         var rtm = RootObject.Instance?.RoomTwinManager;
         if (rtm == null) return;
+
+        bool hasDigitalTwin = !string.IsNullOrEmpty(rtm.CurrentDigitalTwinId) || !string.IsNullOrEmpty(activityManager?.Activity?.DigitalTwin);
+        bool isEditor = activityManager != null && activityManager.IsEditorMode;
+
+        if (hasDigitalTwin && isEditor && RootView_v2.Instance?.dialog != null)
+        {
+            RootView_v2.Instance.dialog.ShowMiddleMultiline(
+                "Digital Twin",
+                ("Change Digital Twin...", () => OpenDigitalTwinGalleryOrDialogAsync().Forget(), false),
+                ("Clear Digital Twin", () =>
+                {
+                    rtm.ClearDigitalTwin();
+                    UpdateDigitalTwinButtonsUI();
+                }, true),
+                ("Cancel", null, false));
+            return;
+        }
+
+        await OpenDigitalTwinGalleryOrDialogAsync();
+    }
+
+    private async UniTask OpenDigitalTwinGalleryOrDialogAsync()
+    {
+        var rtm = RootObject.Instance?.RoomTwinManager;
+        if (rtm == null) return;
+
+        bool hasDigitalTwin = !string.IsNullOrEmpty(rtm.CurrentDigitalTwinId) || !string.IsNullOrEmpty(activityManager?.Activity?.DigitalTwin);
 
         if (_digitalTwinGalleryOverlay != null)
         {
@@ -1420,8 +2066,17 @@ public class StepsListView_v2 : BaseView
             options.Add((capturedId, () => LoadSelectedRoomScanAsync(capturedId).Forget(), false));
         }
 
-        options.Add(("Cancel", null, true));
-        RootView_v2.Instance.dialog.ShowMiddleMultiline("Add Digital Twin...", options.ToArray());
+        if (hasDigitalTwin)
+        {
+            options.Add(("Clear Digital Twin", () =>
+            {
+                rtm.ClearDigitalTwin();
+                UpdateDigitalTwinButtonsUI();
+            }, true));
+        }
+
+        options.Add(("Cancel", null, false));
+        RootView_v2.Instance.dialog.ShowMiddleMultiline(hasDigitalTwin ? "Digital Twin..." : "Add Digital Twin...", options.ToArray());
     }
 
     private async UniTask OpenDigitalTwinGalleryFromTemplateAsync(VirtualInstructorViewMobile viTemplate, ReplaceModel replaceModelTemplate)

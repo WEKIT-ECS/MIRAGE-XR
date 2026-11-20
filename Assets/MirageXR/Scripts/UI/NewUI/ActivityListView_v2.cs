@@ -73,8 +73,18 @@ public class ActivityListView_v2 : BaseView
         LearningExperienceEngine.EventManager.OnStartActivity += ShowBackButtons;
         RootObject.Instance.LEE.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
         RootObject.Instance.LEE.AuthorizationManager.OnLoginCompleted += OnLoginCompleted;
+        RootObject.Instance.LEE.AuthorizationManager.OnPrivilegesChanged += UpdateCreateButtonState;
+        UpdateCreateButtonState();
 
         //RootObject.Instance.ActivityManager.OnActivitiesFetched += OnActivitiesFetched;
+    }
+
+    private void UpdateCreateButtonState()
+    {
+        if (rootView?.bottomPanelView?.btnCreate != null)
+        {
+            rootView.bottomPanelView.btnCreate.gameObject.SetActive(RootObject.Instance.LEE.AuthorizationManager.CanCreateActivity);
+        }
     }
 
     private void OnLoginCompleted(string accessToken)
@@ -82,17 +92,51 @@ public class ActivityListView_v2 : BaseView
         RootObject.Instance.LEE.ActivityManager.FetchActivitiesAsync();
     }
 
+    private string _activeTagFilter;
+    private ActivityResponse _lastResponse;
+
     private void OnActivitiesFetched(ActivityResponse activityResponse)
     {
+        _lastResponse = activityResponse;
+        UpdateCreateButtonState();
+
         _items.ForEach(item => Destroy(item.gameObject));
         _items.Clear();
 
+        IEnumerable<Activity> activities = activityResponse.Activities;
+        if (!string.IsNullOrEmpty(_activeTagFilter))
+        {
+            activities = activities.Where(a => a.Tags != null && a.Tags.Contains(_activeTagFilter));
+        }
+
+        if (LearningExperienceEngine.UserSettings.groupByTags)
+        {
+            activities = activities.OrderBy(a => a.Tags != null && a.Tags.Count > 0 ? a.Tags[0] : "zzz_untagged");
+        }
+
         var prefab = !LearningExperienceEngine.UserSettings.showBigCards ? _smallItemPrefab : _bigItemPrefab;
-        foreach (var activity in activityResponse.Activities)
+        foreach (var activity in activities)
         {
             var item = Instantiate(prefab, _listTransform);
-            item.Init(activity, OnActivityClick, OnActivityDelete);
+            item.Init(activity, OnActivityClick, OnActivityDelete, OnTagClicked);
             _items.Add(item);
+        }
+    }
+
+    private void OnTagClicked(string tag)
+    {
+        if (_activeTagFilter == tag)
+        {
+            _activeTagFilter = null;
+        }
+        else
+        {
+            _activeTagFilter = tag;
+        }
+
+        if (_lastResponse != null)
+        {
+            OnActivitiesFetched(_lastResponse);
         }
     }
 
@@ -123,11 +167,11 @@ public class ActivityListView_v2 : BaseView
             Debug.LogError($"Failed to load activity '{activity.Name}': {ex.Message}");
             if (DialogWindow.Instance != null)
             {
-                DialogWindow.Instance.Show("Error", $"Activity '{activity.Name}' could not be found or loaded.", new DialogButtonContent("OK"));
+                DialogWindow.Instance.Show("Error", $"Activity '{activity.Name}' is unavailable or access has ended.", new DialogButtonContent("OK"));
             }
             else if (MenuManager.Instance?.Dialog != null)
             {
-                MenuManager.Instance.Dialog.ShowMiddle("Error", $"Activity '{activity.Name}' could not be found or loaded.", "OK", () => { });
+                MenuManager.Instance.Dialog.ShowMiddle("Error", $"Activity '{activity.Name}' is unavailable or access has ended.", "OK", () => { });
             }
         }
         finally

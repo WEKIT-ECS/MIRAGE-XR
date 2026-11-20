@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using LearningExperienceEngine.NewDataModel;
 
 namespace MirageXR
 {
@@ -32,8 +33,31 @@ namespace MirageXR
     /// </summary>
     public class RoomTwinManager : MonoBehaviour, IThumbnailProvider    //TODO: correct fields name
     {
-        private const string roomScanBaseEndpoint = "http://repository.wekit-ecs.com:8001/digitaltwin/";
+        private string RoomScanBaseEndpoint
+        {
+            get
+            {
+                var config = RootObject.Instance?.LEE?.ConfigManager;
+                var address = config?.GetNetworkServerAddress();
+                if (string.IsNullOrEmpty(address))
+                {
+                    address = "https://repository.wekit-ecs.com";
+                }
+                if (address.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && address.Contains("repository.wekit-ecs.com"))
+                {
+                    address = "https://" + address.Substring("http://".Length);
+                }
+                var port = config?.GetNetworkServerPort();
+                var baseUri = string.IsNullOrEmpty(port) ? address.TrimEnd('/') : $"{address.TrimEnd('/')}:{port}";
+                return $"{baseUri}/digitaltwin/";
+            }
+        }
 
+        private string ListEndpoint => RoomScanBaseEndpoint + "list";
+
+        private string ThumbnailEndpoint => RoomScanBaseEndpoint + "thumbnail/get";
+
+        private string ModelEndpoint => RoomScanBaseEndpoint + "get";
 
         public bool _FullTwinBlendInCompleted = false;
         public bool _WireframeBlendInCompleted = false;
@@ -59,21 +83,6 @@ namespace MirageXR
         private readonly Dictionary<Renderer, Material[]> _originalMaterials = new Dictionary<Renderer, Material[]>();
 
         private bool _showRoom = false;
-
-        private string ListEndpoint
-        {
-            get => roomScanBaseEndpoint + "list";
-        }
-
-        private string ThumbnailEndpoint
-        {
-            get => roomScanBaseEndpoint + "thumbnail/get";
-        }
-
-        private string ModelEndpoint
-        {
-            get => roomScanBaseEndpoint + "get";
-        }
 
         #region lerp
         private Color _startColor;
@@ -174,6 +183,17 @@ namespace MirageXR
             _currentDigitalTwinId = null;
             _digitalTwinLocation = LearningExperienceEngine.DataModel.Location.GetIdentityLocation();
             _roomTwinStyle = RoomTwinStyle.FullTwin;
+            OnRoomTwinStateChanged?.Invoke();
+        }
+
+        public void ClearDigitalTwin()
+        {
+            UnloadDigitalTwin();
+            if (RootObject.Instance?.LEE?.ActivityManager?.Activity != null)
+            {
+                RootObject.Instance.LEE.ActivityManager.SetDigitalTwin(null, null, null);
+            }
+            MenuManager.Instance?.CloseDigitalTwinPopups();
             OnRoomTwinStateChanged?.Invoke();
         }
 
@@ -337,6 +357,7 @@ namespace MirageXR
         {
             using (UnityWebRequest webRequest = UnityWebRequest.Get(ListEndpoint))
             {
+                webRequest.certificateHandler = new BypassCertificateHandler();
                 webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
                 await webRequest.SendWebRequest();
                 if (webRequest.result == UnityWebRequest.Result.Success)
@@ -463,7 +484,7 @@ namespace MirageXR
             {
                 new HttpHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}")
             };
-            var downloadProvider = new CustomHeaderDownloadProvider(headers);
+            var downloadProvider = new AuthenticatedDownloadProvider(headers);
             _gltf = new GltfImport(downloadProvider);
 
             // Create a settings object and configure it accordingly
@@ -817,6 +838,7 @@ namespace MirageXR
                 string thumbnailUrl = ThumbnailEndpoint + "?digitaltwin_name=" + scanId;
                 using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(thumbnailUrl))
                 {
+                    webRequest.certificateHandler = new BypassCertificateHandler();
                     webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
                     await webRequest.SendWebRequest().WithCancellation(cancellationToken);
 
@@ -837,6 +859,46 @@ namespace MirageXR
             {
                 // release network lock
                 _networkLock.Release();
+            }
+        }
+    }
+
+    public class AuthenticatedDownloadProvider : IDownloadProvider
+    {
+        private readonly HttpHeader[] _headers;
+
+        public AuthenticatedDownloadProvider(HttpHeader[] headers)
+        {
+            _headers = headers;
+        }
+
+        public async Task<IDownload> Request(Uri url)
+        {
+            var req = new CustomHeaderDownload(url, RegisterHttpHeaders);
+            await req.WaitAsync();
+            return req;
+        }
+
+        public async Task<ITextureDownload> RequestTexture(Uri url, bool nonReadable)
+        {
+#if UNITY_WEBREQUEST_TEXTURE
+            var req = new CustomHeaderTextureDownload(url, nonReadable, RegisterHttpHeaders);
+            await req.WaitAsync();
+            return req;
+#else
+            return null;
+#endif
+        }
+
+        private void RegisterHttpHeaders(UnityWebRequest request)
+        {
+            request.certificateHandler = new BypassCertificateHandler();
+            if (_headers != null)
+            {
+                foreach (var header in _headers)
+                {
+                    request.SetRequestHeader(header.Key, header.Value);
+                }
             }
         }
     }

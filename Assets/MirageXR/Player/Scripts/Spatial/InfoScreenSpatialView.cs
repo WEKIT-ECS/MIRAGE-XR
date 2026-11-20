@@ -1,12 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel.DTOs;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.Splines;
 using UnityEngine.UI;
@@ -28,6 +31,15 @@ namespace MirageXR
         [SerializeField] private TMP_Text _textDescription;
         [SerializeField] private StepsMediaListItemView stepsMediaListItemViewPrefab;
         [SerializeField] private Transform containerMedia;
+        [Header("Detect Images & All Users")]
+        [SerializeField] private DetectMediaListItemView _detectMediaListItemViewPrefab;
+        [SerializeField] private Toggle _toggleAllUsers;
+        [SerializeField] private GameObject _toggleAllUsersContainer;
+        [Header("Full Image Overlay")]
+        [SerializeField] private GameObject _fullImageOverlay;
+        [SerializeField] private RawImage _fullImageDisplay;
+        [SerializeField] private Button _buttonCloseFullImage;
+        [SerializeField] private GameObject _fullImageLoadingSpinner;
         [SerializeField] private Toggle minimizeToggle;
         [SerializeField] private Toggle maximizeToggle;
         [SerializeField] private Toggle stepCompletedToggle;
@@ -46,6 +58,7 @@ namespace MirageXR
         
         private bool _suppressSplineUpdates = false;
         private readonly List<StepsMediaListItemView> _mediaListItemViews = new();
+        private readonly List<DetectMediaListItemView> _detectMediaListItemViews = new();
         
         private ActivityStep _step;
         private Camera _camera;
@@ -73,6 +86,25 @@ namespace MirageXR
             previousStepButton_Collapsed.onClick.AddListener(OnPreviousStepClicked);
             maximizeToggle.onValueChanged.AddListener(OnCollapsedPanelMaximizeToggleValueChanged);
             minimizeToggle.onValueChanged.AddListener(OnMaximisedPanelMinimizeToggleValueChanged);
+
+            if (_buttonCloseFullImage != null)
+            {
+                _buttonCloseFullImage.onClick.AddListener(CloseFullImagePreview);
+            }
+
+            if (_toggleAllUsers != null)
+            {
+                _toggleAllUsers.onValueChanged.AddListener(OnToggleAllUsersValueChanged);
+            }
+
+            if (stepCompletedToggle != null)
+            {
+                stepCompletedToggle.onValueChanged.AddListener(OnStepCompleted);
+            }
+            if (stepCompletedToggle_Collapsed != null)
+            {
+                stepCompletedToggle_Collapsed.onValueChanged.AddListener(OnStepCompleted);
+            }
             
             UpdateView(step); 
         }
@@ -199,6 +231,8 @@ private void HandleClick()
         private void OnEditorModeChanged(bool value)
         {
             _windowContainer.SetActive(!value);
+            if (stepCompletedToggle != null) stepCompletedToggle.gameObject.SetActive(!value);
+            if (stepCompletedToggle_Collapsed != null) stepCompletedToggle_Collapsed.gameObject.SetActive(!value);
             UpdateSplinesBasedOnWindowState();
         }
 
@@ -559,6 +593,10 @@ private void HandleClick()
             
             var isEditorMode = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
             OnEditorModeChanged(isEditorMode);
+
+            bool isCompleted = _step != null && StepsListItem_v2.IsStepCompleted(_step.Id.ToString());
+            if (stepCompletedToggle != null) stepCompletedToggle.SetIsOnWithoutNotify(isCompleted);
+            if (stepCompletedToggle_Collapsed != null) stepCompletedToggle_Collapsed.SetIsOnWithoutNotify(isCompleted);
             
             foreach (var item in _mediaListItemViews)
             {
@@ -585,8 +623,253 @@ private void HandleClick()
                     }
                 }
             }
+
+            bool isManagerOrAdmin = CheckIsManagerOrAdmin();
+            if (_toggleAllUsersContainer != null)
+            {
+                _toggleAllUsersContainer.SetActive(isManagerOrAdmin);
+            }
+            else if (_toggleAllUsers != null)
+            {
+                _toggleAllUsers.gameObject.SetActive(isManagerOrAdmin);
+            }
+
+            if (_toggleAllUsers != null)
+            {
+                if (!isManagerOrAdmin)
+                {
+                    _toggleAllUsers.SetIsOnWithoutNotify(false);
+                }
+                var switchToggle = _toggleAllUsers.GetComponent<SwitchToggle>();
+                if (switchToggle != null)
+                {
+                    switchToggle.EnsureInitialized();
+                    switchToggle.ForceUpdateView();
+                }
+            }
+
+            LoadDetectImagesAsync(_step).Forget();
+
             // CreateSplinesForHyperlinks(); // Wait for controller to trigger this
             _suppressSplineUpdates = false;
+        }
+
+        private bool CheckIsManagerOrAdmin()
+        {
+            var auth = RootObject.Instance?.LEE?.AuthorizationManager;
+            if (auth == null) return false;
+
+            if (auth.HasScopePrivilege("*", "admin")) return true;
+            if (auth.UserPrivileges != null && auth.UserPrivileges.Any(p => 
+                string.Equals(p, "admin", StringComparison.OrdinalIgnoreCase) || 
+                string.Equals(p, "manager", StringComparison.OrdinalIgnoreCase) || 
+                string.Equals(p, "managers", StringComparison.OrdinalIgnoreCase))) return true;
+
+            var activity = RootObject.Instance?.LEE?.ActivityManager?.Activity;
+            string scope = string.IsNullOrWhiteSpace(activity?.CustomerScope) ? "wekit" : activity.CustomerScope;
+            return auth.HasScopePrivilege(scope, "admin") || 
+                   auth.HasScopePrivilege(scope, "managers") || 
+                   auth.HasScopePrivilege(scope, "manager");
+        }
+
+        private void OnToggleAllUsersValueChanged(bool isOn)
+        {
+            LoadDetectImagesAsync(_step).Forget();
+        }
+
+        private async UniTask LoadDetectImagesAsync(ActivityStep step)
+        {
+            foreach (var item in _detectMediaListItemViews)
+            {
+                if (item != null) Destroy(item.gameObject);
+            }
+            _detectMediaListItemViews.Clear();
+
+            if (step == null) return;
+
+            var aiManager = RootObject.Instance?.LEE?.ArtificialIntelligenceManager;
+            if (aiManager == null) return;
+
+            var activityManager = RootObject.Instance?.LEE?.ActivityManager;
+            if (activityManager == null) return;
+
+            string activityId = activityManager.ActivityId.ToString();
+            string stepId = step.Id.ToString();
+
+            var auth = RootObject.Instance?.LEE?.AuthorizationManager;
+            string targetUserId = (_toggleAllUsers != null && _toggleAllUsers.isOn) ? null : auth?.UserName;
+
+            var images = await aiManager.GetConversationImagesAsync(
+                activityId: activityId,
+                stepId: stepId,
+                userId: targetUserId);
+
+            if (images != null && containerMedia != null && _detectMediaListItemViewPrefab != null)
+            {
+                bool isManagerOrAdmin = CheckIsManagerOrAdmin();
+                string currentUserName = auth?.UserName;
+
+                foreach (var imgData in images)
+                {
+                    bool isOwner = !string.IsNullOrEmpty(currentUserName) && 
+                                   string.Equals(currentUserName, imgData.UserId, StringComparison.OrdinalIgnoreCase);
+                    bool canDelete = isOwner || isManagerOrAdmin;
+
+                    var item = Instantiate(_detectMediaListItemViewPrefab, containerMedia);
+                    item.Initialize(imgData, null, ShowFullImagePreview, OnDeleteImageClicked, canDelete);
+                    _detectMediaListItemViews.Add(item);
+                }
+            }
+        }
+
+        private void OnDeleteImageClicked(ConversationImageMetadata image, DetectMediaListItemView itemView)
+        {
+            if (image == null) return;
+
+            Action deleteAction = () =>
+            {
+                DeleteImageAsync(image, itemView).Forget();
+            };
+
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show(
+                    "Delete Image",
+                    "Are you sure you want to delete this capture?",
+                    new DialogButtonContent("Delete", deleteAction, true),
+                    new DialogButtonContent("Cancel", () => { }));
+            }
+            else if (MenuManager.Instance?.Dialog != null)
+            {
+                MenuManager.Instance.Dialog.ShowMiddle(
+                    "Delete Image",
+                    "Are you sure you want to delete this capture?",
+                    "Delete",
+                    deleteAction,
+                    "Cancel",
+                    () => { });
+            }
+            else
+            {
+                deleteAction();
+            }
+        }
+
+        private async UniTask DeleteImageAsync(ConversationImageMetadata image, DetectMediaListItemView itemView)
+        {
+            var aiManager = RootObject.Instance?.LEE?.ArtificialIntelligenceManager;
+            if (aiManager != null)
+            {
+                bool success = await aiManager.DeleteConversationImageAsync(image.Id);
+                if (success)
+                {
+                    if (itemView != null)
+                    {
+                        _detectMediaListItemViews.Remove(itemView);
+                        Destroy(itemView.gameObject);
+                    }
+                }
+                else
+                {
+                    Toast.Instance?.Show("Failed to delete image.");
+                }
+            }
+        }
+
+        public void ShowFullImagePreview(ConversationImageMetadata image)
+        {
+            if (image == null || _fullImageOverlay == null) return;
+
+            _fullImageOverlay.SetActive(true);
+            if (_fullImageLoadingSpinner != null) _fullImageLoadingSpinner.SetActive(true);
+
+            LoadFullImageAsync(image).Forget();
+        }
+
+        private async UniTask LoadFullImageAsync(ConversationImageMetadata image)
+        {
+            var aiManager = RootObject.Instance?.LEE?.ArtificialIntelligenceManager;
+            if (aiManager != null)
+            {
+                var fullTexture = await aiManager.GetConversationImageTextureAsync(image.Id, isThumbnail: false);
+                if (fullTexture != null && _fullImageDisplay != null)
+                {
+                    _fullImageDisplay.texture = fullTexture;
+                    var fitter = _fullImageDisplay.GetComponent<AspectRatioFitter>();
+                    if (fitter != null && fullTexture.height > 0)
+                    {
+                        fitter.aspectRatio = (float)fullTexture.width / fullTexture.height;
+                    }
+                    _fullImageDisplay.gameObject.SetActive(true);
+                }
+            }
+
+            if (_fullImageLoadingSpinner != null) _fullImageLoadingSpinner.SetActive(false);
+        }
+
+        public void CloseFullImagePreview()
+        {
+            if (_fullImageOverlay != null)
+            {
+                _fullImageOverlay.SetActive(false);
+            }
+            if (_fullImageDisplay != null)
+            {
+                _fullImageDisplay.texture = null;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_buttonCloseFullImage != null)
+            {
+                _buttonCloseFullImage.onClick.RemoveAllListeners();
+            }
+            if (_toggleAllUsers != null)
+            {
+                _toggleAllUsers.onValueChanged.RemoveAllListeners();
+            }
+            if (stepCompletedToggle != null)
+            {
+                stepCompletedToggle.onValueChanged.RemoveListener(OnStepCompleted);
+            }
+            if (stepCompletedToggle_Collapsed != null)
+            {
+                stepCompletedToggle_Collapsed.onValueChanged.RemoveListener(OnStepCompleted);
+            }
+        }
+
+        private void OnStepCompleted(bool isToggled)
+        {
+            if (stepCompletedToggle != null) stepCompletedToggle.SetIsOnWithoutNotify(isToggled);
+            if (stepCompletedToggle_Collapsed != null) stepCompletedToggle_Collapsed.SetIsOnWithoutNotify(isToggled);
+
+            if (isToggled)
+            {
+                if (stepCompletedToggle != null) stepCompletedToggle.SetIsOnWithoutNotify(false);
+                if (stepCompletedToggle_Collapsed != null) stepCompletedToggle_Collapsed.SetIsOnWithoutNotify(false);
+
+                StepVerificationController.CheckStepCompletedAsync(
+                    _step,
+                    isSpatial: true,
+                    onResult: (success) =>
+                    {
+                        if (stepCompletedToggle != null) stepCompletedToggle.SetIsOnWithoutNotify(success);
+                        if (stepCompletedToggle_Collapsed != null) stepCompletedToggle_Collapsed.SetIsOnWithoutNotify(success);
+                        if (_step != null)
+                        {
+                            LoadDetectImagesAsync(_step).Forget();
+                        }
+                    }
+                ).Forget();
+            }
+            else
+            {
+                if (_step != null)
+                {
+                    StepVerificationController.SetStepCompleted(_step.Id.ToString(), false);
+                }
+            }
         }
 
         private string AddLinkTagsToBrackets(string inputText)

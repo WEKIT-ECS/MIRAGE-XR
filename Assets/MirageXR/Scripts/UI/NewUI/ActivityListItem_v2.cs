@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
@@ -24,6 +26,9 @@ namespace MirageXR
         [SerializeField] private Button _btnMain;
         [SerializeField] private Button _btnDelete;
         [SerializeField] private Sprite _deleteIcon;
+        [SerializeField] private Transform _tagsContainer;
+        [SerializeField] private Color _tagChipColor = new Color(0.49411765f, 0.2901961f, 0.7529412f, 1f);
+        [SerializeField] private Sprite _tagChipSprite;
 
         private const float SWIPE_LIMIT = 150f;
         private const float SWIPE_DURATION = 0.2f;
@@ -32,6 +37,7 @@ namespace MirageXR
         private Activity _activity;
         private UnityAction<Activity> _onClick;
         private UnityAction<Activity> _onDelete;
+        private UnityAction<string> _onTagClicked;
 
         private RectTransform _contentTransform;
         private ScrollRect _scrollRect;
@@ -162,16 +168,129 @@ namespace MirageXR
             iconImg.raycastTarget = false;
         }
 
-        public void Init(Activity activity, UnityAction<Activity> onClick, UnityAction<Activity> onDelete)
+        public void Init(Activity activity, UnityAction<Activity> onClick, UnityAction<Activity> onDelete, UnityAction<string> onTagClicked = null)
         {
             _onClick = onClick;
             _onDelete = onDelete;
+            _onTagClicked = onTagClicked;
             _activity = activity;
             _btnMain.onClick.RemoveAllListeners();
             _btnMain.onClick.AddListener(OnBtnMain);
 
+            bool canDelete = _activity.EffectivePermissions != null && _activity.EffectivePermissions.Delete;
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (!canDelete && auth != null)
+            {
+                string scope = string.IsNullOrWhiteSpace(_activity.CustomerScope) ? "wekit" : _activity.CustomerScope;
+                bool isOriginalCreator = !string.IsNullOrEmpty(auth.UserSub) &&
+                    ((_activity.Creator != null && string.Equals(_activity.Creator.Id.ToString(), auth.UserSub, StringComparison.OrdinalIgnoreCase)) ||
+                     (!string.IsNullOrEmpty(_activity.Owner) && string.Equals(_activity.Owner, auth.UserSub, StringComparison.OrdinalIgnoreCase)));
+
+                canDelete = isOriginalCreator || auth.HasScopePrivilege(scope, "delete") || auth.HasScopePrivilege("*", "delete");
+            }
+            if (_btnDelete != null)
+            {
+                _btnDelete.gameObject.SetActive(canDelete);
+            }
+
             ResetSwipe(immediate: true);
             UpdateView();
+            UpdateTagsView();
+        }
+
+        private void UpdateTagsView()
+        {
+            if (_tagsContainer == null)
+            {
+                var existingContainer = transform.Find("TagsContainer");
+                if (existingContainer != null)
+                {
+                    _tagsContainer = existingContainer;
+                }
+                else
+                {
+                    var go = new GameObject("TagsContainer", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+                    go.transform.SetParent(transform, false);
+                    var hlg = go.GetComponent<HorizontalLayoutGroup>();
+                    hlg.childControlWidth = false;
+                    hlg.childControlHeight = false;
+                    hlg.childForceExpandWidth = false;
+                    hlg.childForceExpandHeight = false;
+                    hlg.childAlignment = TextAnchor.MiddleLeft;
+                    hlg.spacing = 2f;
+                    var rt = go.GetComponent<RectTransform>();
+                    rt.anchorMin = new Vector2(0f, 0f);
+                    rt.anchorMax = new Vector2(1f, 0f);
+                    rt.pivot = new Vector2(0f, 0f);
+                    rt.anchoredPosition = new Vector2(120f, 8f);
+                    rt.sizeDelta = new Vector2(-130f, 22f);
+                    _tagsContainer = go.transform;
+                }
+            }
+
+            foreach (Transform child in _tagsContainer)
+            {
+                Destroy(child.gameObject);
+            }
+
+            if (_activity?.Tags == null || _activity.Tags.Count == 0)
+            {
+                return;
+            }
+
+            TMP_FontAsset sampleFont = _txtLabel != null ? _txtLabel.font : null;
+            var tagsToShow = _activity.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).Take(3).ToList();
+            for (int i = 0; i < tagsToShow.Count; i++)
+            {
+                string tag = tagsToShow[i].Trim().ToString();
+
+                if (i > 0)
+                {
+                    var commaObj = new GameObject("Comma", typeof(RectTransform), typeof(TextMeshProUGUI));
+                    commaObj.transform.SetParent(_tagsContainer, false);
+                    var commaTmp = commaObj.GetComponent<TextMeshProUGUI>();
+                    if (sampleFont != null) commaTmp.font = sampleFont;
+                    commaTmp.text = ",";
+                    commaTmp.fontSize = 12;
+                    commaTmp.color = new Color(0.75f, 0.75f, 0.75f, 1f);
+                    commaTmp.alignment = TextAlignmentOptions.Center;
+                    commaTmp.raycastTarget = false;
+                    var commaRt = commaObj.GetComponent<RectTransform>();
+                    commaRt.sizeDelta = new Vector2(4f, 20f);
+                }
+
+                var chipObj = new GameObject($"TagChip_{tag}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+                chipObj.transform.SetParent(_tagsContainer, false);
+                var img = chipObj.GetComponent<Image>();
+                img.sprite = _tagChipSprite;
+                if (img.sprite != null)
+                {
+                    img.type = Image.Type.Sliced;
+                }
+                img.color = _tagChipColor;
+                var btn = chipObj.GetComponent<Button>();
+                string currentTag = tag;
+                btn.onClick.AddListener(() => _onTagClicked?.Invoke(currentTag));
+
+                var textObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+                textObj.transform.SetParent(chipObj.transform, false);
+                var tmp = textObj.GetComponent<TextMeshProUGUI>();
+                if (sampleFont != null) tmp.font = sampleFont;
+                string displayText = tag.StartsWith("#") ? tag : $"#{tag}";
+                tmp.text = displayText;
+                tmp.fontSize = 11;
+                tmp.alignment = TextAlignmentOptions.Center;
+                tmp.color = Color.white;
+                tmp.raycastTarget = false;
+                var textRt = textObj.GetComponent<RectTransform>();
+                textRt.anchorMin = Vector2.zero;
+                textRt.anchorMax = Vector2.one;
+                textRt.sizeDelta = Vector2.zero;
+
+                var chipRt = chipObj.GetComponent<RectTransform>();
+                float preferredWidth = tmp.preferredWidth > 0 ? tmp.preferredWidth + 12f : (displayText.Length * 7.5f + 14f);
+                chipRt.sizeDelta = new Vector2(Mathf.Max(32f, preferredWidth), 20f);
+            }
         }
 
         private void UpdateView()
@@ -184,7 +303,7 @@ namespace MirageXR
 
         private async UniTaskVoid LoadThumbnailAsync()
         {
-            if (_activity == null || string.IsNullOrEmpty(_activity.ThumbnailLink))
+            if (_activity == null || !_activity.HasThumbnail)
             {
                 if (_image != null)
                 {
@@ -193,25 +312,25 @@ namespace MirageXR
                 return;
             }
 
-            if (TryToGetGuids(_activity.ThumbnailLink, out var activityId, out var fileId))
+            var activityId = _activity.Id;
+            var fileId = _activity.Thumbnail.Id;
+
+            var texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
+            if (texture == null)
             {
-                var texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
-                if (texture == null)
-                {
-                    await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(activityId, fileId);
-                    texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
-                }
+                await RootObject.Instance.LEE.MediaManager.DownloadMediaFileAsync(activityId, fileId);
+                texture = await RootObject.Instance.LEE.MediaManager.LoadMediaFileToTexture2D(activityId, fileId);
+            }
 
-                if (this == null)
-                {
-                    return;
-                }
+            if (this == null)
+            {
+                return;
+            }
 
-                if (texture != null && _image != null)
-                {
-                    _image.sprite = Utilities.TextureToSprite(texture);
-                    return;
-                }
+            if (texture != null && _image != null)
+            {
+                _image.sprite = Utilities.TextureToSprite(texture);
+                return;
             }
 
             if (_image != null)
@@ -235,7 +354,10 @@ namespace MirageXR
                 var matches = Regex.Matches(url, @"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
                 if (matches.Count >= 2)
                 {
-                    if (Guid.TryParse(matches[0].Value, out activityId) && Guid.TryParse(matches[1].Value, out fileId))
+                    if (Guid.TryParse(matches[0].Value, out activityId) &&
+                        Guid.TryParse(matches[1].Value, out fileId) &&
+                        activityId != Guid.Empty &&
+                        fileId != Guid.Empty)
                     {
                         return true;
                     }
@@ -263,6 +385,14 @@ namespace MirageXR
             if (_scrollRect == null)
             {
                 _scrollRect = GetComponentInParent<ScrollRect>();
+            }
+
+            bool canDelete = _activity?.EffectivePermissions == null || _activity.EffectivePermissions.Delete;
+            if (!canDelete)
+            {
+                _isSwiping = false;
+                _scrollRect?.OnBeginDrag(eventData);
+                return;
             }
 
             Vector2 totalDelta = eventData.position - eventData.pressPosition;

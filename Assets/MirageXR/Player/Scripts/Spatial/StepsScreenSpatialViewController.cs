@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
+using LearningExperienceEngine.NewDataModel.DTOs;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace MirageXR
@@ -18,6 +21,13 @@ namespace MirageXR
         private readonly List<ContetItemView> _contentsItemViews = new();
         private readonly List<StepsMediaListItemView> _mediaListItemViews = new();
         private readonly List<StepsToolsListItemView> _toolsListItemViews = new();
+        private readonly List<DetectMediaListItemView> _detectMediaListItemViews = new();
+        private Toggle _toggleAllUsers;
+        private GameObject _toggleAllUsersContainer;
+        private GameObject _runtimeFullImageOverlay;
+        private RawImage _runtimeFullImageDisplay;
+        private GameObject _runtimeLoadingSpinner;
+        private CancellationTokenSource _fullImageCts;
         private Dictionary<string, GameObject> hyperlinkPrefabs = new(); 
         private bool descriptionContainsLinks = false;
         private Dictionary<string, Vector3> hyperlinkPositions = new();
@@ -49,6 +59,19 @@ namespace MirageXR
         protected override void OnUnbind()
         {
             base.OnUnbind();
+            if (_toggleAllUsers != null)
+            {
+                _toggleAllUsers.onValueChanged.RemoveListener(OnToggleAllUsersValueChanged);
+            }
+            if (_runtimeFullImageOverlay != null)
+            {
+                Destroy(_runtimeFullImageOverlay);
+                _runtimeFullImageOverlay = null;
+            }
+            _fullImageCts?.Cancel();
+            _fullImageCts?.Dispose();
+            _fullImageCts = null;
+
             if (RootObject.Instance?.LEE != null)
             {
                 if (RootObject.Instance.LEE.ActivityManager != null)
@@ -518,6 +541,303 @@ namespace MirageXR
                     }
                 }
             }
+
+            foreach (var item in _detectMediaListItemViews)
+            {
+                if (item != null) Destroy(item.gameObject);
+            }
+            _detectMediaListItemViews.Clear();
+
+            EnsureToggleAllUsers();
+
+            bool isManagerOrAdmin = CheckIsManagerOrAdmin();
+            if (_toggleAllUsersContainer != null)
+            {
+                _toggleAllUsersContainer.SetActive(isManagerOrAdmin);
+            }
+            else if (_toggleAllUsers != null)
+            {
+                _toggleAllUsers.gameObject.SetActive(isManagerOrAdmin);
+            }
+
+            if (_toggleAllUsers != null)
+            {
+                if (!isManagerOrAdmin)
+                {
+                    _toggleAllUsers.SetIsOnWithoutNotify(false);
+                }
+                var switchToggle = _toggleAllUsers.GetComponent<SwitchToggle>();
+                if (switchToggle != null)
+                {
+                    switchToggle.EnsureInitialized();
+                    switchToggle.ForceUpdateView();
+                }
+            }
+
+            LoadDetectImagesAsync(_step).Forget();
+        }
+
+        private void EnsureToggleAllUsers()
+        {
+            if (_toggleAllUsers != null) return;
+
+            if (View != null && View.GetToggleAllUsers() != null)
+            {
+                _toggleAllUsers = View.GetToggleAllUsers();
+                _toggleAllUsersContainer = View.GetToggleAllUsersContainer();
+                _toggleAllUsers.onValueChanged.AddListener(OnToggleAllUsersValueChanged);
+            }
+        }
+
+        private async UniTask LoadDetectImagesAsync(ActivityStep step)
+        {
+            foreach (var item in _detectMediaListItemViews)
+            {
+                if (item != null) Destroy(item.gameObject);
+            }
+            _detectMediaListItemViews.Clear();
+
+            if (step == null) return;
+
+            var aiManager = RootObject.Instance?.LEE?.ArtificialIntelligenceManager;
+            if (aiManager == null) return;
+
+            var activityManager = RootObject.Instance?.LEE?.ActivityManager;
+            if (activityManager == null) return;
+
+            string activityId = activityManager.ActivityId.ToString();
+            string stepId = step.Id.ToString();
+
+            var auth = RootObject.Instance?.LEE?.AuthorizationManager;
+            string targetUserId = (_toggleAllUsers != null && _toggleAllUsers.isOn) ? null : auth?.UserName;
+
+            var images = await aiManager.GetConversationImagesAsync(
+                activityId: activityId,
+                stepId: stepId,
+                userId: targetUserId);
+
+            var container = View?.GetContainerMedia();
+            var prefab = View?.GetDetectMediaListItemViewPrefab();
+
+            if (images != null && container != null && prefab != null)
+            {
+                bool isManagerOrAdmin = CheckIsManagerOrAdmin();
+                string currentUserName = auth?.UserName;
+
+                foreach (var imgData in images)
+                {
+                    bool isOwner = !string.IsNullOrEmpty(currentUserName) &&
+                                   string.Equals(currentUserName, imgData.UserId, StringComparison.OrdinalIgnoreCase);
+                    bool canDelete = isOwner || isManagerOrAdmin;
+
+                    var item = Instantiate(prefab, container);
+                    item.Initialize(imgData, null, ShowFullImagePreview, OnDeleteImageClicked, canDelete);
+                    _detectMediaListItemViews.Add(item);
+                }
+            }
+        }
+
+        private void OnDeleteImageClicked(ConversationImageMetadata image, DetectMediaListItemView itemView)
+        {
+            if (image == null) return;
+
+            Action deleteAction = () =>
+            {
+                DeleteImageAsync(image, itemView).Forget();
+            };
+
+            if (DialogWindow.Instance != null)
+            {
+                DialogWindow.Instance.Show(
+                    "Delete Image",
+                    "Are you sure you want to delete this capture?",
+                    new DialogButtonContent("Delete", deleteAction, true),
+                    new DialogButtonContent("Cancel", () => { }));
+            }
+            else if (MenuManager.Instance?.Dialog != null)
+            {
+                MenuManager.Instance.Dialog.ShowMiddle(
+                    "Delete Image",
+                    "Are you sure you want to delete this capture?",
+                    "Delete",
+                    deleteAction);
+            }
+            else
+            {
+                deleteAction.Invoke();
+            }
+        }
+
+        private async UniTask DeleteImageAsync(ConversationImageMetadata image, DetectMediaListItemView itemView)
+        {
+            var aiManager = RootObject.Instance?.LEE?.ArtificialIntelligenceManager;
+            if (aiManager == null) return;
+
+            bool success = await aiManager.DeleteConversationImageAsync(image.Id);
+            if (success)
+            {
+                if (itemView != null)
+                {
+                    _detectMediaListItemViews.Remove(itemView);
+                    Destroy(itemView.gameObject);
+                }
+            }
+            else
+            {
+                var dialog = MenuManager.Instance?.Dialog;
+                if (dialog != null)
+                {
+                    dialog.ShowMiddle("Delete Failed", "Failed to delete the capture from server.", "OK", () => { });
+                }
+            }
+        }
+
+        private void EnsureFullImageOverlay(out RawImage display, out Button closeBtn, out GameObject spinner)
+        {
+            if (View != null && View.GetFullImageOverlay() != null)
+            {
+                display = View.GetFullImageDisplay();
+                closeBtn = View.GetButtonCloseFullImage();
+                spinner = View.GetFullImageLoadingSpinner();
+                return;
+            }
+
+            if (_runtimeFullImageOverlay == null)
+            {
+                var canvas = View?.GetComponentInParent<Canvas>();
+                Transform parentTransform = canvas != null ? canvas.transform : View?.transform;
+
+                var overlayObj = new GameObject("FullImageOverlay", typeof(RectTransform), typeof(Image));
+                if (parentTransform != null)
+                {
+                    overlayObj.transform.SetParent(parentTransform, false);
+                }
+                overlayObj.transform.SetAsLastSibling();
+
+                var overlayRect = overlayObj.GetComponent<RectTransform>();
+                overlayRect.anchorMin = Vector2.zero;
+                overlayRect.anchorMax = Vector2.one;
+                overlayRect.sizeDelta = Vector2.zero;
+
+                var overlayImg = overlayObj.GetComponent<Image>();
+                overlayImg.color = new Color(0f, 0f, 0f, 0.92f);
+
+                var imgObj = new GameObject("FullImageDisplay", typeof(RectTransform), typeof(RawImage));
+                imgObj.transform.SetParent(overlayObj.transform, false);
+                var imgRect = imgObj.GetComponent<RectTransform>();
+                imgRect.anchorMin = new Vector2(0.05f, 0.05f);
+                imgRect.anchorMax = new Vector2(0.95f, 0.95f);
+                imgRect.sizeDelta = Vector2.zero;
+                _runtimeFullImageDisplay = imgObj.GetComponent<RawImage>();
+
+                var btnObj = new GameObject("ButtonClose", typeof(RectTransform), typeof(Image), typeof(Button));
+                btnObj.transform.SetParent(overlayObj.transform, false);
+                var btnRect = btnObj.GetComponent<RectTransform>();
+                btnRect.anchorMin = new Vector2(1, 1);
+                btnRect.anchorMax = new Vector2(1, 1);
+                btnRect.anchoredPosition = new Vector2(-40, -40);
+                btnRect.sizeDelta = new Vector2(50, 50);
+
+                var btnImg = btnObj.GetComponent<Image>();
+                btnImg.color = new Color(0.3f, 0.3f, 0.35f, 0.9f);
+
+                var closeTextObj = new GameObject("X", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+                closeTextObj.transform.SetParent(btnObj.transform, false);
+                var closeTmp = closeTextObj.GetComponent<TMPro.TextMeshProUGUI>();
+                closeTmp.text = "✕";
+                closeTmp.alignment = TMPro.TextAlignmentOptions.Center;
+                closeTmp.fontSize = 28;
+                closeTmp.color = Color.white;
+                var closeTextRect = closeTextObj.GetComponent<RectTransform>();
+                closeTextRect.anchorMin = Vector2.zero;
+                closeTextRect.anchorMax = Vector2.one;
+                closeTextRect.sizeDelta = Vector2.zero;
+
+                var btn = btnObj.GetComponent<Button>();
+                btn.onClick.AddListener(CloseFullImagePreview);
+
+                _runtimeFullImageOverlay = overlayObj;
+            }
+
+            _runtimeFullImageOverlay.SetActive(false);
+            display = _runtimeFullImageDisplay;
+            closeBtn = null;
+            spinner = _runtimeLoadingSpinner;
+        }
+
+        public void ShowFullImagePreview(ConversationImageMetadata image)
+        {
+            if (image == null) return;
+
+            EnsureFullImageOverlay(out var display, out var closeBtn, out var spinner);
+            var overlay = View?.GetFullImageOverlay() ?? _runtimeFullImageOverlay;
+            if (overlay == null || display == null) return;
+
+            overlay.SetActive(true);
+            overlay.transform.SetAsLastSibling();
+
+            _fullImageCts?.Cancel();
+            _fullImageCts = new CancellationTokenSource();
+
+            LoadFullImageAsync(image, display, spinner, _fullImageCts.Token).Forget();
+        }
+
+        private async UniTask LoadFullImageAsync(ConversationImageMetadata image, RawImage display, GameObject spinner, CancellationToken ct)
+        {
+            if (spinner != null) spinner.SetActive(true);
+
+            var aiManager = RootObject.Instance?.LEE?.ArtificialIntelligenceManager;
+            if (aiManager != null)
+            {
+                var fullTex = await aiManager.GetConversationImageTextureAsync(image.Id, isThumbnail: false);
+                if (!ct.IsCancellationRequested && fullTex != null)
+                {
+                    if (display != null)
+                    {
+                        display.texture = fullTex;
+                    }
+                }
+            }
+
+            if (spinner != null) spinner.SetActive(false);
+        }
+
+        public void CloseFullImagePreview()
+        {
+            _fullImageCts?.Cancel();
+            var overlay = View?.GetFullImageOverlay() ?? _runtimeFullImageOverlay;
+            if (overlay != null)
+            {
+                overlay.SetActive(false);
+            }
+            var display = View?.GetFullImageDisplay() ?? _runtimeFullImageDisplay;
+            if (display != null)
+            {
+                display.texture = null;
+            }
+        }
+
+        private bool CheckIsManagerOrAdmin()
+        {
+            var auth = RootObject.Instance?.LEE?.AuthorizationManager;
+            if (auth == null) return false;
+
+            if (auth.HasScopePrivilege("*", "admin")) return true;
+            if (auth.UserPrivileges != null && auth.UserPrivileges.Any(p =>
+                string.Equals(p, "admin", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(p, "manager", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(p, "managers", StringComparison.OrdinalIgnoreCase))) return true;
+
+            var activity = RootObject.Instance?.LEE?.ActivityManager?.Activity;
+            string scope = string.IsNullOrWhiteSpace(activity?.CustomerScope) ? "wekit" : activity.CustomerScope;
+            return auth.HasScopePrivilege(scope, "admin") ||
+                   auth.HasScopePrivilege(scope, "managers") ||
+                   auth.HasScopePrivilege(scope, "manager");
+        }
+
+        private void OnToggleAllUsersValueChanged(bool isOn)
+        {
+            LoadDetectImagesAsync(_step).Forget();
         }
 
         private void UpdateInfoToolsView()

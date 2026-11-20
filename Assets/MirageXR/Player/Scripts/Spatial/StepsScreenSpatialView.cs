@@ -42,6 +42,15 @@ namespace MirageXR
         [SerializeField] private Button buttonAddNewFile;
         [SerializeField] private Transform containerMedia;
         [SerializeField] private StepsMediaListItemView stepsMediaListItemViewPrefab;
+        [Header("Detect Media")]
+        [SerializeField] private DetectMediaListItemView _detectMediaListItemViewPrefab;
+        [SerializeField] private GameObject _toggleAllUsersContainer;
+        [SerializeField] private Toggle _toggleAllUsers;
+        [Header("Full Image Overlay")]
+        [SerializeField] private GameObject _fullImageOverlay;
+        [SerializeField] private RawImage _fullImageDisplay;
+        [SerializeField] private Button _buttonCloseFullImage;
+        [SerializeField] private GameObject _fullImageLoadingSpinner;
         [Header("Tools")]
         [SerializeField] private GameObject containerAddNewTool;
         [SerializeField] private Button buttonAddNewTool;
@@ -99,6 +108,13 @@ namespace MirageXR
         public void SetActionOnButtonMediaAddNewFileClick(UnityAction action) => buttonAddNewFile.SafeSetListener(action);
         public Transform GetContainerMedia() => containerMedia;
         public StepsMediaListItemView GetStepsMediaListItemViewPrefab() => stepsMediaListItemViewPrefab;
+        public DetectMediaListItemView GetDetectMediaListItemViewPrefab() => _detectMediaListItemViewPrefab;
+        public GameObject GetToggleAllUsersContainer() => _toggleAllUsersContainer;
+        public Toggle GetToggleAllUsers() => _toggleAllUsers;
+        public GameObject GetFullImageOverlay() => _fullImageOverlay;
+        public RawImage GetFullImageDisplay() => _fullImageDisplay;
+        public Button GetButtonCloseFullImage() => _buttonCloseFullImage;
+        public GameObject GetFullImageLoadingSpinner() => _fullImageLoadingSpinner;
 
         public void SetActiveContainerToolsAddNewToolClick(bool value) => containerAddNewTool.SetActive(value);
         public void SetActionOnButtonToolsAddNewToolClick(UnityAction action) => buttonAddNewTool.SafeSetListener(action);

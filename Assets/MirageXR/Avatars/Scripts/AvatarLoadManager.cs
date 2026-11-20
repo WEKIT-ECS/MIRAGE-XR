@@ -8,12 +8,31 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using LearningExperienceEngine.NewDataModel;
 
 namespace MirageXR
 {
     public class AvatarLoadManager : MonoBehaviour, IThumbnailProvider
     {
-        private const string avatarBaseEndpoint = "http://repository.wekit-ecs.com:8001/avatar/";
+        private string AvatarBaseEndpoint
+        {
+            get
+            {
+                var config = RootObject.Instance?.LEE?.ConfigManager;
+                var address = config?.GetNetworkServerAddress();
+                if (string.IsNullOrEmpty(address))
+                {
+                    address = "https://repository.wekit-ecs.com";
+                }
+                if (address.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && address.Contains("repository.wekit-ecs.com"))
+                {
+                    address = "https://" + address.Substring("http://".Length);
+                }
+                var port = config?.GetNetworkServerPort();
+                var baseUri = string.IsNullOrEmpty(port) ? address.TrimEnd('/') : $"{address.TrimEnd('/')}:{port}";
+                return $"{baseUri}/avatar/";
+            }
+        }
 
         private LearningExperienceEngine.IAuthorizationManager _authorizationManager;
 
@@ -21,20 +40,11 @@ namespace MirageXR
 
         private static readonly SemaphoreSlim _networkLock = new SemaphoreSlim(1, 1);
 
-        private string AvatarListEndpoint
-        {
-            get => avatarBaseEndpoint + "list";
-        }
+        private string AvatarListEndpoint => AvatarBaseEndpoint + "list";
 
-        private string AvatarThumbnailEndpoint
-        {
-            get => avatarBaseEndpoint + "thumbnail/get";
-        }
+        private string AvatarThumbnailEndpoint => AvatarBaseEndpoint + "thumbnail/get";
 
-        private string AvatarModelEndpoint
-        {
-            get => avatarBaseEndpoint + "get";
-        }
+        private string AvatarModelEndpoint => AvatarBaseEndpoint + "get";
 
         public void Initialize(LearningExperienceEngine.IAuthorizationManager authorizationManager)
         {
@@ -47,6 +57,7 @@ namespace MirageXR
             {
                 using (UnityWebRequest webRequest = UnityWebRequest.Get(AvatarListEndpoint))
                 {
+                    webRequest.certificateHandler = new BypassCertificateHandler();
                     if (_authorizationManager != null && !string.IsNullOrEmpty(_authorizationManager.AccessToken))
                     {
                         webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
@@ -91,6 +102,7 @@ namespace MirageXR
             {
                 using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
                 {
+                    webRequest.certificateHandler = new BypassCertificateHandler();
                     if (_authorizationManager != null && !string.IsNullOrEmpty(_authorizationManager.AccessToken))
                     {
                         webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
@@ -193,6 +205,7 @@ namespace MirageXR
                 string thumbnailUrl = AvatarThumbnailEndpoint + "?avatar_name=" + cleanName;
                 using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(thumbnailUrl))
                 {
+                    webRequest.certificateHandler = new BypassCertificateHandler();
                     if (_authorizationManager != null && !string.IsNullOrEmpty(_authorizationManager.AccessToken))
                     {
                         webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");

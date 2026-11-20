@@ -193,6 +193,13 @@ namespace MirageXR
 
         private static async UniTaskVoid OpenActivityAsync(Guid activityId, Pose uprightPose)
         {
+            var auth = RootObject.Instance.LEE.AuthorizationManager;
+            if (auth != null && !auth.LoggedIn())
+            {
+                auth.Login();
+                await UniTask.WaitUntil(() => auth.LoggedIn());
+            }
+
             var loadView = LoadView.Instance;
             if (loadView != null)
             {
@@ -206,8 +213,8 @@ namespace MirageXR
             catch (Exception ex)
             {
                 Debug.LogError($"[QRCodeScannerSpatialView] Failed to load activity {activityId}: {ex.Message}");
-                ShowDialog("Activity Not Found",
-                    $"Activity with ID '{activityId}' could not be opened or does not exist.");
+                ShowDialog("Error",
+                    "This activity is unavailable or access has ended.");
                 return;
             }
             finally

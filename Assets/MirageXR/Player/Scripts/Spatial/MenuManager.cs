@@ -153,6 +153,15 @@ namespace MirageXR
 
         public void ShowRoomScanSettingsPanelView()
         {
+            if (PopupsViewer.Instance == null || _roomScanSettingsSpatialViewPrefab == null) return;
+            var existing = PopupsViewer.Instance.GetComponentInChildren<RoomScanSettingsSpatialView>(true);
+            if (existing != null)
+            {
+                existing.gameObject.SetActive(true);
+                existing.transform.SetAsLastSibling();
+                return;
+            }
+            CloseDigitalTwinPopups();
             PopupsViewer.Instance.Show(_roomScanSettingsSpatialViewPrefab);
         }
 
