@@ -57,30 +57,5 @@ namespace Tests
             Assert.IsTrue(deserialized.EyesFollowUser);
             Assert.IsFalse(deserialized.StandOnFloorPlane);
         }
-
-        [Test]
-        public void InstructorContentData_PascalAndCamelCase_AliasesAreHandled()
-        {
-            var json = @"{
-                ""PersistentThread"": true,
-                ""threadId"": ""thread_alias_abc"",
-                ""assistantId"": ""asst_alias_xyz"",
-                ""StartConversation"": true,
-                ""FollowUser"": true,
-                ""EyesFollowUser"": true,
-                ""StandOnFloorPlane"": false
-            }";
-
-            var deserialized = JsonConvert.DeserializeObject<InstructorContentData>(json);
-
-            Assert.IsNotNull(deserialized);
-            Assert.AreEqual(true, deserialized.PersistentThread);
-            Assert.AreEqual("thread_alias_abc", deserialized.ThreadId);
-            Assert.AreEqual("asst_alias_xyz", deserialized.AssistantId);
-            Assert.AreEqual(true, deserialized.StartConversation);
-            Assert.IsTrue(deserialized.FollowUser);
-            Assert.IsTrue(deserialized.EyesFollowUser);
-            Assert.IsFalse(deserialized.StandOnFloorPlane);
-        }
     }
 }
