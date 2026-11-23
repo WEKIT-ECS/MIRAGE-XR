@@ -109,8 +109,6 @@ namespace MirageXR
 
             ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 
-            EnsureCheckboxes();
-
             if (IsContentUpdate && Content is Content<InstructorContentData> instructorContent && instructorContent.ContentData != null)
             {
                 var data = instructorContent.ContentData;
@@ -176,136 +174,6 @@ namespace MirageXR
             }
         }
 
-        private void EnsureCheckboxes()
-        {
-            if (_togglePersistentThread == null)
-                _togglePersistentThread = transform.Find("Panel/SettingsPanel/Viewport/Content/CheckboxesContainer/Toggle_PersistentThread")?.GetComponent<Toggle>()
-                    ?? transform.Find("Panel/SettingsPanel/Viewport/Content/Toggle_PersistentThread")?.GetComponent<Toggle>()
-                    ?? transform.Find("SettingsPanel/Viewport/Content/CheckboxesContainer/Toggle_PersistentThread")?.GetComponent<Toggle>()
-                    ?? transform.Find("SettingsPanel/Viewport/Content/Toggle_PersistentThread")?.GetComponent<Toggle>();
-
-            if (_toggleStartConversation == null)
-                _toggleStartConversation = transform.Find("Panel/SettingsPanel/Viewport/Content/CheckboxesContainer/Toggle_StartConversation")?.GetComponent<Toggle>()
-                    ?? transform.Find("Panel/SettingsPanel/Viewport/Content/Toggle_StartConversation")?.GetComponent<Toggle>()
-                    ?? transform.Find("SettingsPanel/Viewport/Content/CheckboxesContainer/Toggle_StartConversation")?.GetComponent<Toggle>()
-                    ?? transform.Find("SettingsPanel/Viewport/Content/Toggle_StartConversation")?.GetComponent<Toggle>();
-
-            if (_toggleFollowUser == null)
-                _toggleFollowUser = transform.Find("Panel/SettingsPanel/Viewport/Content/CheckboxesContainer/Toggle_FollowUser")?.GetComponent<Toggle>()
-                    ?? transform.Find("Panel/SettingsPanel/Viewport/Content/Toggle_FollowUser")?.GetComponent<Toggle>()
-                    ?? transform.Find("SettingsPanel/Viewport/Content/CheckboxesContainer/Toggle_FollowUser")?.GetComponent<Toggle>()
-                    ?? transform.Find("SettingsPanel/Viewport/Content/Toggle_FollowUser")?.GetComponent<Toggle>();
-
-            if (_toggleEyesFollowUser == null)
-                _toggleEyesFollowUser = transform.Find("Panel/SettingsPanel/Viewport/Content/CheckboxesContainer/Toggle_EyesFollowUser")?.GetComponent<Toggle>()
-                    ?? transform.Find("Panel/SettingsPanel/Viewport/Content/Toggle_EyesFollowUser")?.GetComponent<Toggle>()
-                    ?? transform.Find("SettingsPanel/Viewport/Content/CheckboxesContainer/Toggle_EyesFollowUser")?.GetComponent<Toggle>()
-                    ?? transform.Find("SettingsPanel/Viewport/Content/Toggle_EyesFollowUser")?.GetComponent<Toggle>();
-
-            if (_toggleStandOnFloorPlane == null)
-                _toggleStandOnFloorPlane = transform.Find("Panel/SettingsPanel/Viewport/Content/CheckboxesContainer/Toggle_StandOnFloorPlane")?.GetComponent<Toggle>()
-                    ?? transform.Find("Panel/SettingsPanel/Viewport/Content/Toggle_StandOnFloorPlane")?.GetComponent<Toggle>()
-                    ?? transform.Find("SettingsPanel/Viewport/Content/CheckboxesContainer/Toggle_StandOnFloorPlane")?.GetComponent<Toggle>()
-                    ?? transform.Find("SettingsPanel/Viewport/Content/Toggle_StandOnFloorPlane")?.GetComponent<Toggle>();
-
-            if (_togglePersistentThread == null || _toggleStartConversation == null || _toggleFollowUser == null || _toggleEyesFollowUser == null || _toggleStandOnFloorPlane == null)
-            {
-                var content = transform.Find("Panel/SettingsPanel/Viewport/Content")
-                    ?? transform.Find("SettingsPanel/Viewport/Content")
-                    ?? (settingsPanel != null ? settingsPanel.transform : null);
-
-                if (content != null)
-                {
-                    var containerTransform = content.Find("CheckboxesContainer");
-                    if (containerTransform == null)
-                    {
-                        var containerGo = new GameObject("CheckboxesContainer", typeof(RectTransform), typeof(VerticalLayoutGroup));
-                        containerGo.transform.SetParent(content, false);
-                        var vlg = containerGo.GetComponent<VerticalLayoutGroup>();
-                        vlg.childControlWidth = true;
-                        vlg.childControlHeight = false;
-                        vlg.childForceExpandWidth = true;
-                        vlg.childForceExpandHeight = false;
-                        vlg.spacing = 10f;
-                        containerTransform = containerGo.transform;
-
-                        var applyBtn = content.Find("ApplyBtn");
-                        if (applyBtn != null)
-                        {
-                            containerTransform.SetSiblingIndex(applyBtn.GetSiblingIndex());
-                        }
-                    }
-
-                    if (_togglePersistentThread == null)
-                        _togglePersistentThread = CreateCheckbox(containerTransform, "Toggle_PersistentThread", "One persistent, shared conversation for all users", false);
-                    if (_toggleStartConversation == null)
-                        _toggleStartConversation = CreateCheckbox(containerTransform, "Toggle_StartConversation", "Start conversation when step is loaded", false);
-                    if (_toggleFollowUser == null)
-                        _toggleFollowUser = CreateCheckbox(containerTransform, "Toggle_FollowUser", "Walk to follow the user", false);
-                    if (_toggleEyesFollowUser == null)
-                        _toggleEyesFollowUser = CreateCheckbox(containerTransform, "Toggle_EyesFollowUser", "Seek eye contact with the user", false);
-                    if (_toggleStandOnFloorPlane == null)
-                        _toggleStandOnFloorPlane = CreateCheckbox(containerTransform, "Toggle_StandOnFloorPlane", "Jump to floor plane", true);
-                }
-            }
-        }
-
-        private Toggle CreateCheckbox(Transform parent, string name, string labelText, bool defaultValue = false)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Toggle));
-            go.transform.SetParent(parent, false);
-
-            var rt = go.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(300, 32);
-
-            var bgGo = new GameObject("Background", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            bgGo.transform.SetParent(go.transform, false);
-            var bgRt = bgGo.GetComponent<RectTransform>();
-            bgRt.anchorMin = new Vector2(0, 0.5f);
-            bgRt.anchorMax = new Vector2(0, 0.5f);
-            bgRt.pivot = new Vector2(0.5f, 0.5f);
-            bgRt.anchoredPosition = new Vector2(14, 0);
-            bgRt.sizeDelta = new Vector2(24, 24);
-            var bgImg = bgGo.GetComponent<Image>();
-            bgImg.color = new Color(0.22f, 0.24f, 0.28f, 1f);
-
-            var checkGo = new GameObject("Checkmark", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            checkGo.transform.SetParent(bgGo.transform, false);
-            var checkRt = checkGo.GetComponent<RectTransform>();
-            checkRt.anchorMin = new Vector2(0.5f, 0.5f);
-            checkRt.anchorMax = new Vector2(0.5f, 0.5f);
-            checkRt.pivot = new Vector2(0.5f, 0.5f);
-            checkRt.anchoredPosition = Vector2.zero;
-            checkRt.sizeDelta = new Vector2(16, 16);
-            var checkImg = checkGo.GetComponent<Image>();
-            checkImg.color = new Color(0.38f, 0.65f, 1f, 1f);
-
-            var labelGo = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
-            labelGo.transform.SetParent(go.transform, false);
-            var labelRt = labelGo.GetComponent<RectTransform>();
-            labelRt.anchorMin = new Vector2(0, 0);
-            labelRt.anchorMax = new Vector2(1, 1);
-            labelRt.pivot = new Vector2(0, 0.5f);
-            labelRt.offsetMin = new Vector2(36, 0);
-            labelRt.offsetMax = new Vector2(0, 0);
-            var labelTmp = labelGo.GetComponent<TextMeshProUGUI>();
-            labelTmp.text = labelText;
-            labelTmp.fontSize = 16;
-            labelTmp.color = Color.white;
-            labelTmp.alignment = TextAlignmentOptions.MidlineLeft;
-            if (_txtLabel != null && _txtLabel.font != null)
-            {
-                labelTmp.font = _txtLabel.font;
-            }
-
-            var toggle = go.GetComponent<Toggle>();
-            toggle.targetGraphic = bgImg;
-            toggle.graphic = checkImg;
-            toggle.isOn = defaultValue;
-
-            return toggle;
-        }
-
         private void OnVoiceInstructionChanged(string text)
         {
             _voiceInstruction = text;
@@ -339,8 +207,6 @@ namespace MirageXR
                 Toast.Instance.Show("[Instructor] No character selected.");
                 return;
             }
-
-            EnsureCheckboxes();
 
             string threadId = null;
             string assistantId = null;
