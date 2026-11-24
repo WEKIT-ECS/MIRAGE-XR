@@ -111,6 +111,8 @@ namespace MirageXR
 
             ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 
+            EnsureTogglesInitialized();
+
             if (IsContentUpdate && Content is Content<InstructorContentData> instructorContent && instructorContent.ContentData != null)
             {
                 var data = instructorContent.ContentData;
@@ -348,6 +350,30 @@ namespace MirageXR
         public void OpenAIModelSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.AIModelSettings;
 
         public void OpenLanguageSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.LanguageSettings;
+
+        private void EnsureTogglesInitialized()
+        {
+            if (_togglePersistentThread == null) _togglePersistentThread = FindToggleInSettings("Persistent thread");
+            if (_toggleStartConversation == null) _toggleStartConversation = FindToggleInSettings("Start conversation immediately");
+            if (_toggleFollowUser == null) _toggleFollowUser = FindToggleInSettings("Follow user");
+            if (_toggleEyesFollowUser == null) _toggleEyesFollowUser = FindToggleInSettings("Eyes follow user");
+            if (_toggleStandOnFloorPlane == null) _toggleStandOnFloorPlane = FindToggleInSettings("Stand on floor plane");
+        }
+
+        private Toggle FindToggleInSettings(string label)
+        {
+            if (settingsPanel == null) return null;
+            var texts = settingsPanel.GetComponentsInChildren<TMP_Text>(true);
+            foreach (var text in texts)
+            {
+                if (text.text.Equals(label, StringComparison.OrdinalIgnoreCase))
+                {
+                    var toggle = text.transform.parent != null ? text.transform.parent.GetComponentInChildren<Toggle>(true) : null;
+                    if (toggle != null) return toggle;
+                }
+            }
+            return null;
+        }
     }
 
     [Serializable]

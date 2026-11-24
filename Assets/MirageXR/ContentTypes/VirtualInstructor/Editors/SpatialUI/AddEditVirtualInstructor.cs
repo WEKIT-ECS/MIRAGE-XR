@@ -129,6 +129,8 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
         interactionSettingToggleClosed.onValueChanged.AddListener(SetInteractionSettingsActive);
         avatarModelSettingPanel.CharacterModelSelected += OnAvatarModelSelected;
 
+        EnsureTogglesInitialized();
+
         if (IsContentUpdate && _instructorContentData?.ContentData != null)
         {
             var data = _instructorContentData.ContentData;
@@ -172,6 +174,7 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
 
     private async UniTaskVoid SaveAndCloseAsync()
     {
+        EnsureTogglesInitialized();
         string threadId = _instructorContentData?.ContentData?.ThreadId;
         string assistantId = _instructorContentData?.ContentData?.AssistantId;
         bool isPersistent = _togglePersistentThread != null && _togglePersistentThread.isOn;
@@ -472,5 +475,29 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
         _textToSpeechModel = model;
         _voiceInstruction = voiceInstruction;
         aiVoice.text = model.Name;
+    }
+
+    private void EnsureTogglesInitialized()
+    {
+        if (_togglePersistentThread == null) _togglePersistentThread = FindToggleInContent("Persistent thread");
+        if (_toggleStartConversation == null) _toggleStartConversation = FindToggleInContent("Start conversation immediately");
+        if (_toggleFollowUser == null) _toggleFollowUser = FindToggleInContent("Follow user");
+        if (_toggleEyesFollowUser == null) _toggleEyesFollowUser = FindToggleInContent("Eyes follow user");
+        if (_toggleStandOnFloorPlane == null) _toggleStandOnFloorPlane = FindToggleInContent("Stand on floor plane");
+    }
+
+    private Toggle FindToggleInContent(string label)
+    {
+        if (content == null) return null;
+        var texts = content.GetComponentsInChildren<TMP_Text>(true);
+        foreach (var text in texts)
+        {
+            if (text.text.Equals(label, StringComparison.OrdinalIgnoreCase))
+            {
+                var toggle = text.transform.parent != null ? text.transform.parent.GetComponentInChildren<Toggle>(true) : null;
+                if (toggle != null) return toggle;
+            }
+        }
+        return null;
     }
 }
