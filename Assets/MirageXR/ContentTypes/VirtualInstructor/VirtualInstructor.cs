@@ -113,7 +113,9 @@ namespace MirageXR
             if (!string.IsNullOrEmpty(_lastSpokenText))
             {
                 float duration = clip != null ? clip.length : 5f;
-                string speaker = InstructorData?.Name ?? "Virtual Instructor";
+                string speaker = !string.IsNullOrEmpty(InstructorData?.CharacterName) 
+                    ? InstructorData.CharacterName 
+                    : "Virtual Instructor";
                 CaptionController.Instance?.ShowCaption(_lastSpokenText, duration, speaker);
                 EventManager.ShowCaption(_lastSpokenText, duration, speaker);
                 OnInstructorSpokenText?.Invoke(_lastSpokenText, duration);
