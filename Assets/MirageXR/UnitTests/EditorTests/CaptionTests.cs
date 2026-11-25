@@ -3,6 +3,7 @@ using LearningExperienceEngine;
 using MirageXR;
 using NUnit.Framework;
 using UnityEngine;
+using EventManager = MirageXR.EventManager;
 
 namespace Tests
 {
