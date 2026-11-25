@@ -147,6 +147,45 @@ namespace MirageXR.View
             }
         }
 
+        /// <summary>
+        /// Updates the instructor content configuration dynamically without re-instantiating the GameObject.
+        /// Useful when editing options (e.g., persistent thread, follow user) in Edit Mode.
+        /// </summary>
+        public void UpdateContent(Content<InstructorContentData> content)
+        {
+            _instructorContent = content;
+            var data = content?.ContentData;
+            if (data == null) return;
+
+            _threadId = data.ThreadId;
+            _assistantId = data.AssistantId;
+
+            gameObject.name = data.CharacterName;
+            PlayAnimationClip(data.AnimationClip);
+
+            if (data.StandOnFloorPlane && RootObject.Instance?.FloorManagerWithRaycastFallback != null)
+            {
+                var floorY = RootObject.Instance.FloorManagerWithRaycastFallback.GetFloorHeight(transform.position);
+                transform.position = new Vector3(transform.position.x, floorY, transform.position.z);
+            }
+
+            var turnToUser = GetComponentInChildren<TurnToUser>() ?? GetComponent<TurnToUser>();
+            if (turnToUser != null)
+            {
+                turnToUser.enabled = data.EyesFollowUser;
+            }
+            else if (data.EyesFollowUser)
+            {
+                turnToUser = gameObject.AddComponent<TurnToUser>();
+                turnToUser.RotationOffset = Quaternion.Euler(0, 180, 0);
+            }
+
+            if (data.StartConversation == true)
+            {
+                StartConversationAsync().Forget();
+            }
+        }
+
         private async UniTaskVoid StartConversationAsync()
         {
             try

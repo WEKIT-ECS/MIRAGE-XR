@@ -216,34 +216,59 @@ namespace MirageXR
             string assistantId = null;
             bool isPersistent = _togglePersistentThread != null && _togglePersistentThread.isOn;
 
-            if (IsContentUpdate && Content is Content<InstructorContentData> existingInstructor && existingInstructor.ContentData != null)
-            {
-                threadId = existingInstructor.ContentData.ThreadId;
-                assistantId = existingInstructor.ContentData.AssistantId;
-            }
-
             var prompt = GetPrompt();
             var charName = string.IsNullOrEmpty(_prefabName) ? defaultCharacter : _prefabName;
             var llm = GetLLM();
 
-            if (isPersistent && (string.IsNullOrEmpty(threadId) || string.IsNullOrEmpty(assistantId)))
+            bool needsReinitialization = false;
+
+            if (IsContentUpdate && Content is Content<InstructorContentData> existingInstructor && existingInstructor.ContentData != null)
             {
-                try
+                var prevData = existingInstructor.ContentData;
+                threadId = prevData.ThreadId;
+                assistantId = prevData.AssistantId;
+
+                bool promptChanged = prevData.Prompt != prompt;
+                bool nameChanged = prevData.CharacterName != charName;
+                bool modelChanged = prevData.LanguageModel?.ApiName != llm?.ApiName;
+                bool toggledToPersistent = (prevData.PersistentThread != true) && isPersistent;
+
+                if (promptChanged || nameChanged || modelChanged || toggledToPersistent)
                 {
-                    var initResp = await RootObject.Instance.LEE.ArtificialIntelligenceManager.InitializeInstructorAsync(
-                        charName,
-                        prompt,
-                        llm?.ApiName);
-                    if (initResp != null)
+                    needsReinitialization = true;
+                }
+            }
+            else
+            {
+                needsReinitialization = true;
+            }
+
+            if (isPersistent)
+            {
+                if (needsReinitialization || string.IsNullOrEmpty(threadId) || string.IsNullOrEmpty(assistantId))
+                {
+                    try
                     {
-                        threadId = initResp.ThreadId;
-                        assistantId = initResp.AssistantId;
+                        var initResp = await RootObject.Instance.LEE.ArtificialIntelligenceManager.InitializeInstructorAsync(
+                            charName,
+                            prompt,
+                            llm?.ApiName);
+                        if (initResp != null)
+                        {
+                            threadId = initResp.ThreadId;
+                            assistantId = initResp.AssistantId;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"[Instructor] Failed to pre-initialize persistent thread: {ex.Message}");
                     }
                 }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"[Instructor] Failed to pre-initialize persistent thread: {ex.Message}");
-                }
+            }
+            else
+            {
+                threadId = null;
+                assistantId = null;
             }
 
             var data = new InstructorContentData

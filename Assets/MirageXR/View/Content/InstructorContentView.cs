@@ -34,19 +34,26 @@ namespace MirageXR.View
                 return;
             }
 
-            if (newContent.ContentData.CharacterName != oldContent.ContentData.CharacterName ||
+            if (_instructor == null ||
+                newContent.ContentData.CharacterName != oldContent.ContentData.CharacterName ||
                 newContent.ContentData.CharacterModelUrl != oldContent.ContentData.CharacterModelUrl ||
-                newContent.ContentData.UseReadyPlayerMe != oldContent.ContentData.UseReadyPlayerMe ||
-                newContent.ContentData.AnimationClip != oldContent.ContentData.AnimationClip ||
-                newContent.ContentData.SpeechToTextModel != oldContent.ContentData.SpeechToTextModel ||
-                newContent.ContentData.LanguageModel != oldContent.ContentData.LanguageModel ||
-                newContent.ContentData.TextToSpeechModel != oldContent.ContentData.TextToSpeechModel ||
-                newContent.ContentData.VoiceInstruction != oldContent.ContentData.VoiceInstruction ||
-                newContent.ContentData.Prompt != oldContent.ContentData.Prompt)
+                newContent.ContentData.UseReadyPlayerMe != oldContent.ContentData.UseReadyPlayerMe)
             {
-                Destroy(_instructor);
+                if (_instructor != null)
+                {
+                    Destroy(_instructor);
+                }
                 Initialized = false;
                 Initialized = await InitializeContentAsync(newContent);
+            }
+            else
+            {
+                _instructorContent = newContent;
+                var instructor = _instructor.GetComponentInChildren<Instructor>();
+                if (instructor != null)
+                {
+                    instructor.UpdateContent(newContent);
+                }
             }
 
             await base.OnContentUpdatedAsync(content);

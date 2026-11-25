@@ -175,28 +175,58 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
     private async UniTaskVoid SaveAndCloseAsync()
     {
         EnsureTogglesInitialized();
-        string threadId = _instructorContentData?.ContentData?.ThreadId;
-        string assistantId = _instructorContentData?.ContentData?.AssistantId;
+        string threadId = null;
+        string assistantId = null;
         bool isPersistent = _togglePersistentThread != null && _togglePersistentThread.isOn;
+        bool needsReinitialization = false;
 
-        if (isPersistent && (string.IsNullOrEmpty(threadId) || string.IsNullOrEmpty(assistantId)))
+        if (IsContentUpdate && _instructorContentData?.ContentData != null)
         {
-            try
+            var prevData = _instructorContentData.ContentData;
+            threadId = prevData.ThreadId;
+            assistantId = prevData.AssistantId;
+
+            bool promptChanged = prevData.Prompt != _prompt;
+            bool nameChanged = prevData.CharacterName != _characterName;
+            bool modelChanged = prevData.LanguageModel?.ApiName != _languageModel?.ApiName;
+            bool toggledToPersistent = (prevData.PersistentThread != true) && isPersistent;
+
+            if (promptChanged || nameChanged || modelChanged || toggledToPersistent)
             {
-                var initResp = await RootObject.Instance.LEE.ArtificialIntelligenceManager.InitializeInstructorAsync(
-                    _characterName,
-                    _prompt,
-                    _languageModel?.ApiName);
-                if (initResp != null)
+                needsReinitialization = true;
+            }
+        }
+        else
+        {
+            needsReinitialization = true;
+        }
+
+        if (isPersistent)
+        {
+            if (needsReinitialization || string.IsNullOrEmpty(threadId) || string.IsNullOrEmpty(assistantId))
+            {
+                try
                 {
-                    threadId = initResp.ThreadId;
-                    assistantId = initResp.AssistantId;
+                    var initResp = await RootObject.Instance.LEE.ArtificialIntelligenceManager.InitializeInstructorAsync(
+                        _characterName,
+                        _prompt,
+                        _languageModel?.ApiName);
+                    if (initResp != null)
+                    {
+                        threadId = initResp.ThreadId;
+                        assistantId = initResp.AssistantId;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[AddEditVirtualInstructor] Failed to pre-initialize persistent thread: {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[AddEditVirtualInstructor] Failed to pre-initialize persistent thread: {ex.Message}");
-            }
+        }
+        else
+        {
+            threadId = null;
+            assistantId = null;
         }
 
         _instructorContentData = CreateContent<InstructorContentData>(ContentType.Instructor);
