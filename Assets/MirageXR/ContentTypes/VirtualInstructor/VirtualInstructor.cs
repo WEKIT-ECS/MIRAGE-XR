@@ -16,6 +16,8 @@ namespace MirageXR
         private static IArtificialIntelligenceManager ArtificialIntelligenceManager => RootObject.Instance.LEE.ArtificialIntelligenceManager;
 
         public event Action<AudioClip> OnInstructorResponseAvailable;
+        public event Action<string, float> OnInstructorSpokenText;
+        private string _lastSpokenText;
         
         private const float CharacterHeight = 1.8f;
 
@@ -107,12 +109,22 @@ namespace MirageXR
             {
                 OnInstructorResponseAvailable?.Invoke(clip);     
             }
+
+            if (!string.IsNullOrEmpty(_lastSpokenText))
+            {
+                float duration = clip != null ? clip.length : 5f;
+                string speaker = InstructorData?.Name ?? "Virtual Instructor";
+                CaptionController.Instance?.ShowCaption(_lastSpokenText, duration, speaker);
+                EventManager.ShowCaption(_lastSpokenText, duration, speaker);
+                OnInstructorSpokenText?.Invoke(_lastSpokenText, duration);
+            }
         }
 
         public async UniTask<AudioClip> AskVirtualInstructorAudio(AudioClip inputAudio)
         {
             var question = await ArtificialIntelligenceManager.ConvertSpeechToTextAsync(inputAudio, InstructorData.SpeechToTextModel.ApiName);
             var response = await ArtificialIntelligenceManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, InstructorData.Prompt, _assistantId, _threadId);
+            _lastSpokenText = response;
             var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName, InstructorData.VoiceInstruction);
 
             return clip;
@@ -121,6 +133,7 @@ namespace MirageXR
         public async UniTask<AudioClip> AskVirtualInstructorString(string question)
         {
             var response = await ArtificialIntelligenceManager.SendMessageToAssistantAsync(InstructorData.LanguageModel.ApiName, question, InstructorData.Prompt, _assistantId, _threadId);
+            _lastSpokenText = response;
             var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, InstructorData.TextToSpeechModel.ApiName, InstructorData.VoiceInstruction);
 
             return clip;
@@ -128,6 +141,7 @@ namespace MirageXR
 
         public async UniTask<AudioClip> ConvertTextToSpeech(string message)
         {
+            _lastSpokenText = message;
             return await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(message, InstructorData.TextToSpeechModel.ApiName, InstructorData.VoiceInstruction);
         }
 

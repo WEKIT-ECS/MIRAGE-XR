@@ -25,5 +25,6 @@ namespace MirageXR
         void PlayAudio(AudioClip audioClip);
   
         public event Action<AudioClip> OnInstructorResponseAvailable;
+        public event Action<string, float> OnInstructorSpokenText;
     }
 }

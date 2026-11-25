@@ -24,6 +24,7 @@ namespace MirageXR.View
         private static IArtificialIntelligenceManager ArtificialIntelligenceManager => RootObject.Instance.LEE.ArtificialIntelligenceManager;
 
         public event Action<AudioClip> OnInstructorResponseAvailable;
+        public event Action<string, float> OnInstructorSpokenText;
         
         private const float CharacterHeight = 1.8f;
 
@@ -32,6 +33,7 @@ namespace MirageXR.View
         private string _assistantId;
         private string _threadId;
         private string _history;
+        private string _lastSpokenText;
 
         [SerializeField] private GameObject _loadingIndicatorPrefab;
         private GameObject _currentLoadingIndicator;
@@ -133,6 +135,15 @@ namespace MirageXR.View
             {
                 OnInstructorResponseAvailable?.Invoke(clip);
             }
+
+            if (!string.IsNullOrEmpty(_lastSpokenText))
+            {
+                float duration = clip != null ? clip.length : 5f;
+                string speaker = _instructorContent?.ContentData?.Name ?? "Virtual Instructor";
+                CaptionController.Instance?.ShowCaption(_lastSpokenText, duration, speaker);
+                EventManager.ShowCaption(_lastSpokenText, duration, speaker);
+                OnInstructorSpokenText?.Invoke(_lastSpokenText, duration);
+            }
         }
 
         private void SetWaitingState(bool isWaiting)
@@ -182,6 +193,7 @@ namespace MirageXR.View
                     return null;
                 }
                 AppLog.LogDebug($"AI response: '{response}'");
+                _lastSpokenText = response;
                 var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, GetVoiceInstruction());
                 return clip;
             }
@@ -208,6 +220,7 @@ namespace MirageXR.View
                     AppLog.LogWarning("[Instructor] Received null or empty response from assistant.");
                     return null;
                 }
+                _lastSpokenText = response;
                 var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, GetVoiceInstruction());
 
                 return clip;
@@ -230,6 +243,7 @@ namespace MirageXR.View
         /// <returns>An async task that represents the asynchronous operation. The task result contains the audio clip representing the converted speech.</returns>
         public async UniTask<AudioClip> ConvertTextToSpeech(string message)
         {
+            _lastSpokenText = message;
             var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(message, _instructorContent.ContentData.TextToSpeechModel.ApiName, GetVoiceInstruction());
             return clip;
         }
@@ -361,6 +375,7 @@ namespace MirageXR.View
                     AppLog.LogWarning("[Instructor] Received null or empty response from assistant.");
                     return null;
                 }
+                _lastSpokenText = response;
                 var clip = await ArtificialIntelligenceManager.ConvertTextToSpeechAsync(response, _instructorContent.ContentData.TextToSpeechModel.ApiName, GetVoiceInstruction());
 
                 return clip;
