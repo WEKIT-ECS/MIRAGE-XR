@@ -23,6 +23,7 @@ namespace MirageXR
         [SerializeField] private Button _btnServerPort;
         [SerializeField] private Button _btnWebsocketAddress;
         [SerializeField] private Button _btnWebsocketPort;
+        [SerializeField] private Button _buttonClearCache;
         [Header("Toggles")]
         [SerializeField] private Toggle _toggleConsole;
         [Header("Texts")]
@@ -33,6 +34,7 @@ namespace MirageXR
         [SerializeField] private TMP_Text _tmpTextMoodleServer;
         [SerializeField] private TMP_Text _tmpTextServer;
         [SerializeField] private TMP_Text _tmpTextSketchfab;
+        [SerializeField] private TMP_Text _textCacheSize;
         [Header("GameObjects")]
         [SerializeField] private GameObject _signInPrefab; // TEMP
         [SerializeField] private GameObject _registerPrefab;// TEMP
@@ -54,12 +56,15 @@ namespace MirageXR
         public void SetActionOnButtonGridClick(UnityAction action) => _buttonGrid.SafeSetListener(action);
         public void SetActionOnButtonAudioDeviceClick(UnityAction action) => _buttonAudioDevice.SafeSetListener(action);
         public void SetActionOnButtonDevelopModeClick(UnityAction action) => _buttonDevelopMode.SafeSetListener(action);
+        public void SetActionOnButtonClearCacheClick(UnityAction action) => _buttonClearCache.SafeSetListener(action);
+        public void SetClearCacheInteractable(bool value) => _buttonClearCache.SafeSetInteractable(value);
         public void SetActionOnToggleConsoleValueChanged(UnityAction<bool> action) => _toggleConsole.SafeSetListener(action);
         public void SetSketchfabText(string text) => _tmpTextSketchfab.SafeSetText(text);
         public void SetServerAddressText(string text) => _txtServerAddress.SafeSetText(text);
         public void SetServerPortText(string text) => _txtServerPort.SafeSetText(text);
         public void SetWebsocketAddressText(string text) => _txtWebsocketAddress.SafeSetText(text);
         public void SetWebsocketPortText(string text) => _txtWebsocketPort.SafeSetText(text);
+        public void SetCacheSizeText(string text) => _textCacheSize.SafeSetText(text);
         public AudioDeviceSpatialView GetAudioDevicePrefab() => _audioDevicePrefab;
         public SketchfabSignInPopupView GetSketchfabSignInPopupViewPrefab() => sketchfabSignInPopupViewPrefab;
         public ChangeUserAvatarView GetChangeUserAvatarViewPrefab() => _changeUserAvatarViewPrefab;

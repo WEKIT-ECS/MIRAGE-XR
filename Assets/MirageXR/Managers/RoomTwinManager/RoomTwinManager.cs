@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using LearningExperienceEngine.NewDataModel;
+using MirageXR.FileCache;
 
 namespace MirageXR
 {
@@ -73,9 +74,11 @@ namespace MirageXR
 
         public string CurrentDigitalTwinId => _currentDigitalTwinId;
 
+        private const string ModelFileExtension = ".glb";
+        private const string ThumbnailFileExtension = ".img";
+
         private LearningExperienceEngine.IAuthorizationManager _authorizationManager;
-        private Dictionary<string, Texture2D> thumbnailCache = new Dictionary<string, Texture2D>();
-        private static readonly SemaphoreSlim _networkLock = new SemaphoreSlim(1, 1);
+        private IFileCacheService _fileCacheService;
 
         private GltfImport _gltf;
         private GameObject _roomModel;
@@ -99,11 +102,12 @@ namespace MirageXR
         #endregion
 
         // Start is called before the first frame update
-        public async UniTask InitializationAsync(LearningExperienceEngine.IAuthorizationManager authorizationManager)
+        public async UniTask InitializationAsync(LearningExperienceEngine.IAuthorizationManager authorizationManager, IFileCacheService fileCacheService)
         {
             UnityEngine.Debug.Log("Initializing [RoomTwinManager] <--");
 
             _authorizationManager = authorizationManager;
+            _fileCacheService = fileCacheService;
 
             if (RootObject.Instance?.LEE?.ActivityManager != null)
             {
@@ -358,7 +362,7 @@ namespace MirageXR
             using (UnityWebRequest webRequest = UnityWebRequest.Get(ListEndpoint))
             {
                 webRequest.certificateHandler = new BypassCertificateHandler();
-                webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
+                AuthorizationHeaders.Apply(webRequest, _authorizationManager);
                 await webRequest.SendWebRequest();
                 if (webRequest.result == UnityWebRequest.Result.Success)
                 {
@@ -386,9 +390,34 @@ namespace MirageXR
 
         public async UniTask<bool> LoadRoomTwinModelFromId(string id)
         {
+            if (_fileCacheService == null)
+            {
+                Debug.LogError("[RoomTwinManager] Not initialized, cannot load environment models.", this);
+                return false;
+            }
+
             string url = ModelEndpoint + "?digitaltwin_name=" + id;
 
-            return await LoadGltfRoomTwinAsync(url);
+            GltfImport gltf;
+            try
+            {
+                var request = new CacheRequest(url, AuthorizationHeaders.Create(_authorizationManager), ModelFileExtension);
+                gltf = await _fileCacheService.EnvironmentModels.LoadAsync(request, LoadGltfFileAsync);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[RoomTwinManager] Exception loading environment model '{id}': {e}", this);
+                return false;
+            }
+
+            if (gltf == null)
+            {
+                Debug.LogError($"Loading glTF failed! ({url})", this);
+                return false;
+            }
+
+            await InstantiateRoomTwinAsync(gltf);
+            return true;
         }
 
         /// <summary>
@@ -480,76 +509,111 @@ namespace MirageXR
         /// <param name="url"></param>
         private async UniTask<bool> LoadGltfRoomTwinAsync(string url)
         {
-            var headers = new HttpHeader[]
+            var headers = new List<HttpHeader>();
+            foreach (var header in AuthorizationHeaders.Create(_authorizationManager))
             {
-                new HttpHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}")
-            };
-            var downloadProvider = new AuthenticatedDownloadProvider(headers);
-            _gltf = new GltfImport(downloadProvider);
+                headers.Add(new HttpHeader(header.Key, header.Value));
+            }
 
+            var downloadProvider = new AuthenticatedDownloadProvider(headers.ToArray());
+            var gltf = new GltfImport(downloadProvider);
+
+            // Load the glTF and pass along the settings
+            var success = await gltf.Load(url, CreateImportSettings());
+            if (!success)
+            {
+                gltf.Dispose();
+                Debug.LogError("Loading glTF failed!", this);
+                return false;
+            }
+
+            await InstantiateRoomTwinAsync(gltf);
+            return true;
+        } // LoadGltfRoomTwin
+
+        private static ImportSettings CreateImportSettings()
+        {
             // Create a settings object and configure it accordingly
-            var settings = new ImportSettings
+            return new ImportSettings
             {
                 GenerateMipMaps = true,
                 AnisotropicFilterLevel = 3,
                 NodeNameMethod = NameImportMethod.OriginalUnique
                 //, AnimationMethod = AnimationMethod.Legacy
             };
+        }
 
-            // Load the glTF and pass along the settings
-            var success = await _gltf.Load(url, settings);
-
-            if (success)
+        private static async Task<GltfImport> LoadGltfFileAsync(string path, CancellationToken cancellationToken)
+        {
+            var gltf = new GltfImport();
+            bool success = false;
+            try
             {
-                if (_roomModel != null)
+                success = await gltf.LoadFile(path, null, CreateImportSettings(), cancellationToken);
+                return success ? gltf : null;
+            }
+            finally
+            {
+                if (!success)
                 {
-                    Destroy(_roomModel);
+                    gltf.Dispose();
                 }
-
-                _roomModel = new GameObject("DigitalRoomTwinModel");
-                _roomModel.transform.parent = transform;
-                _roomModel.SetActive(false);
-                _roomModel.AddComponent<MeshRenderer>();
-
-                var instantiator = new GameObjectInstantiator(_gltf, _roomModel.transform);
-                await _gltf.InstantiateMainSceneAsync(instantiator); // transform
-
-                ApplyLocationTransform();
-
-                // Cache original imported materials before any style is applied
-                CacheOriginalMaterials(_roomModel);
-
-                _legacyAnimation = instantiator.SceneInstance.LegacyAnimation;
-
-                // activate
-                _loadingCompleted = true;
-                _FullTwinBlendInCompleted = true;
-                _WireframeBlendInCompleted = true;
-                SetRoomTwinStyle(_roomTwinStyle);
-                SetRoomTwinVisibility(ForceRoomTwinDisplay || _showRoom);
-
-                //if (legacyAnimation != null)
-                //{
-                //    var clips = gltf.GetAnimationClips();
-                //    if (clips != null && clips.Length > 0 && clips[0] != null)
-                //    {
-                //        legacyAnimation.clip = clips[0];
-                //        legacyAnimation.clip.wrapMode = UnityEngine.WrapMode.Loop;
-                //        legacyAnimation.clip.legacy = true;
-                //        legacyAnimation.clip.EnsureQuaternionContinuity();
-                //        legacyAnimation.playAutomatically = true;
-                //        legacyAnimation.Play(clips[0].name);
-                //    }
-                //}
-
             }
-            else
+        }
+
+        /// <summary>
+        /// Replaces the current room model with an instance of the loaded glTF (which is then owned by this manager).
+        /// </summary>
+        private async UniTask InstantiateRoomTwinAsync(GltfImport gltf)
+        {
+            if (_roomModel != null)
             {
-                Debug.LogError("Loading glTF failed!", this);
+                Destroy(_roomModel);
             }
 
-            return true;
-        } // LoadGltfRoomTwin
+            if (_gltf != null && _gltf != gltf)
+            {
+                _gltf.Dispose();
+            }
+
+            _gltf = gltf;
+
+            _roomModel = new GameObject("DigitalRoomTwinModel");
+            _roomModel.transform.parent = transform;
+            _roomModel.SetActive(false);
+            _roomModel.AddComponent<MeshRenderer>();
+
+            var instantiator = new GameObjectInstantiator(_gltf, _roomModel.transform);
+            await _gltf.InstantiateMainSceneAsync(instantiator); // transform
+
+            ApplyLocationTransform();
+
+            // Cache original imported materials before any style is applied
+            CacheOriginalMaterials(_roomModel);
+
+            _legacyAnimation = instantiator.SceneInstance.LegacyAnimation;
+
+            // activate
+            _loadingCompleted = true;
+            _FullTwinBlendInCompleted = true;
+            _WireframeBlendInCompleted = true;
+            SetRoomTwinStyle(_roomTwinStyle);
+            SetRoomTwinVisibility(ForceRoomTwinDisplay || _showRoom);
+
+            //if (legacyAnimation != null)
+            //{
+            //    var clips = gltf.GetAnimationClips();
+            //    if (clips != null && clips.Length > 0 && clips[0] != null)
+            //    {
+            //        legacyAnimation.clip = clips[0];
+            //        legacyAnimation.clip.wrapMode = UnityEngine.WrapMode.Loop;
+            //        legacyAnimation.clip.legacy = true;
+            //        legacyAnimation.clip.EnsureQuaternionContinuity();
+            //        legacyAnimation.playAutomatically = true;
+            //        legacyAnimation.Play(clips[0].name);
+            //    }
+            //}
+        }
 
         private void CacheOriginalMaterials(GameObject roomTwin)
         {
@@ -818,47 +882,40 @@ namespace MirageXR
             }
         }
 
+        /// <inheritdoc/>
         public async UniTask<Texture2D> GetThumbnailAsync(string scanId, CancellationToken cancellationToken = default)
         {
-            if (thumbnailCache.TryGetValue(scanId, out Texture2D cachedTexture))
+            if (string.IsNullOrWhiteSpace(scanId))
             {
-                return cachedTexture;
+                return null;
             }
 
-            await _networkLock.WaitAsync(cancellationToken);
+            if (_fileCacheService == null)
+            {
+                Debug.LogError("[RoomTwinManager] Not initialized, cannot load thumbnails.", this);
+                return null;
+            }
 
+            string thumbnailUrl = ThumbnailEndpoint + "?digitaltwin_name=" + scanId;
             try
             {
-                // re-check if the thumbnail was loaded in the meantime
-                if (thumbnailCache.TryGetValue(scanId, out Texture2D doubleCheck))
+                var request = new CacheRequest(thumbnailUrl, AuthorizationHeaders.Create(_authorizationManager), ThumbnailFileExtension);
+                Texture2D thumbnail = await CachedTextureLoader.LoadAsync(_fileCacheService.Thumbnails, request, cancellationToken);
+                if (thumbnail == null)
                 {
-                    return doubleCheck;
+                    Debug.LogError("Error fetching thumbnail: " + thumbnailUrl);
                 }
 
-                string thumbnailUrl = ThumbnailEndpoint + "?digitaltwin_name=" + scanId;
-                using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(thumbnailUrl))
-                {
-                    webRequest.certificateHandler = new BypassCertificateHandler();
-                    webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
-                    await webRequest.SendWebRequest().WithCancellation(cancellationToken);
-
-                    if (webRequest.result == UnityWebRequest.Result.Success)
-                    {
-                        Texture2D thumbnail = DownloadHandlerTexture.GetContent(webRequest);
-                        thumbnailCache[scanId] = thumbnail;
-                        return thumbnail;
-                    }
-                    else
-                    {
-                        Debug.LogError("Error fetching thumbnail: " + webRequest.error);
-                        return null;
-                    }
-                }
+                return thumbnail;
             }
-            finally
+            catch (OperationCanceledException)
             {
-                // release network lock
-                _networkLock.Release();
+                throw;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Exception fetching thumbnail {thumbnailUrl}: {e.Message}");
+                return null;
             }
         }
     }

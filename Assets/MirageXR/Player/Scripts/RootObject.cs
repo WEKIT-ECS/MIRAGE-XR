@@ -1,7 +1,9 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using i5.Toolkit.Core.VerboseLogging;
+using MirageXR.FileCache;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using UnityEngine;
@@ -36,6 +38,7 @@ namespace MirageXR
 		private ICalibrationManager _calibrationManager;
 		private IAssetBundleManager _assetBundleManager;
         private IViewManager _viewManager;
+		private IFileCacheService _fileCacheService;
 		private MirageXRServiceBootstrapper _serviceBootstrapper;
 
 		public Camera BaseCamera => _viewManager.Camera;
@@ -63,6 +66,7 @@ namespace MirageXR
 		public AvatarLoadManager AvatarLoadManager => _avatarLoadManager;
 		public AvatarLibraryManager AvatarLibraryManager => _avatarLibraryManager;
 		public IViewManager ViewManager => _viewManager;
+		public IFileCacheService FileCacheService => _fileCacheService;
 
 		private bool _isInitialized;
 
@@ -141,8 +145,10 @@ namespace MirageXR
 				_calibrationManager = new CalibrationManager();
 				_virtualInstructorOrchestrator = new VirtualInstructorOrchestrator();
                 _viewManager = new ViewManager();
+				_fileCacheService = new FileCacheService(Path.Combine(Application.temporaryCachePath, "FileCache"), new UnityWebRequestFileFetcher(), log: new UnityFileCacheLog());
 
 				await _assetBundleManager.InitializeAsync();
+				await _fileCacheService.InitializeAsync();
 				_viewManager.Initialize(_lee.ActivityManager, _assetBundleManager, _platformManager, _collaborationManager, _lee.XrManager);
 				_lee.InitializeAsync().Forget();
 				await _lee.WaitForInitialization();
@@ -154,9 +160,9 @@ namespace MirageXR
 				_gridManager.Initialization();
 				_cameraCalibrationChecker.Initialization(_viewManager);
 				_platformManager.Initialization();
-				await _roomTwinManager.InitializationAsync(_lee.AuthorizationManager);
+				await _roomTwinManager.InitializationAsync(_lee.AuthorizationManager, _fileCacheService);
 				await _openAIManager.InitializeAsync();
-				_avatarLoadManager.Initialize(_lee.AuthorizationManager);
+				_avatarLoadManager.Initialize(_lee.AuthorizationManager, _fileCacheService);
 #if FUSION2
                 _collaborationManager.Initialize(_lee.AuthorizationManager, _assetBundleManager);
 #endif
@@ -197,6 +203,8 @@ namespace MirageXR
 
 		private void OnDestroy()
 		{
+			_fileCacheService?.Dispose(); // flushes the cache indices
+
 			if (!_isInitialized)
 			{
 				return;

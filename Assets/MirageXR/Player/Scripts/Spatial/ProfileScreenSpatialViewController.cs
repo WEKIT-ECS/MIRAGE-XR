@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 
@@ -33,6 +34,7 @@ namespace MirageXR
             View.SetActionOnButtonWebsocketAddressClick(ShowChangeWebsocketAddressPanel);
             View.SetActionOnButtonWebsocketPortClick(ShowChangeWebsocketPortPanel);
             View.SetActionOnButtonGridClick(ShowGridSettingsView);
+            View.SetActionOnButtonClearCacheClick(OnButtonClearCacheClicked);
 
             View.gameObject.SetActive(false);
 
@@ -40,6 +42,59 @@ namespace MirageXR
             sketchfabManager.OnSketchfabUserDataChanged += OnSketchfabUserDataChanged;
             sketchfabManager.OnSketchfabLoggedIn += OnSketchfabLoggedIn;
             SubscribeAsync().Forget();
+        }
+
+        protected override void OnScreenChanged(ScreenName screenName, string args)
+        {
+            base.OnScreenChanged(screenName, args);
+            if (screenName == ScreenName)
+            {
+                UpdateCacheSizeText();
+            }
+        }
+
+        private void UpdateCacheSizeText()
+        {
+            var fileCacheService = RootObject.Instance?.FileCacheService;
+            View.SetCacheSizeText(fileCacheService == null ? string.Empty : FormatMegabytes(fileCacheService.TotalSizeBytes));
+        }
+
+        private static string FormatMegabytes(long bytes)
+        {
+            return $"{bytes / (1024.0 * 1024.0):0.0} MB";
+        }
+
+        private void OnButtonClearCacheClicked()
+        {
+            ClearCacheAsync().Forget();
+        }
+
+        private async UniTask ClearCacheAsync()
+        {
+            var fileCacheService = RootObject.Instance?.FileCacheService;
+            if (fileCacheService == null)
+            {
+                return;
+            }
+
+            View.SetClearCacheInteractable(false);
+            try
+            {
+                await fileCacheService.ClearAllAsync();
+                Toast.Instance.Show("Cache cleared");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[ProfileScreen] Clearing the cache failed: {e}");
+            }
+            finally
+            {
+                if (View != null)
+                {
+                    View.SetClearCacheInteractable(true);
+                    UpdateCacheSizeText();
+                }
+            }
         }
 
         private async UniTask SubscribeAsync()
