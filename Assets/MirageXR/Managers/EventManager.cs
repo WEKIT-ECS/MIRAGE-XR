@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace MirageXR
 {
@@ -401,6 +401,20 @@ namespace MirageXR
         public static void NotifyOnPickPlacedCorrectly()
         {
             OnPickPlacedCorrectly?.Invoke();
+        }
+
+        public delegate void ShowCaptionDelegate(string text, float duration, string speaker);
+        public static event ShowCaptionDelegate OnShowCaption;
+        public static void ShowCaption(string text, float duration = 5f, string speaker = null)
+        {
+            OnShowCaption?.Invoke(text, duration, speaker);
+        }
+
+        public delegate void HideCaptionDelegate();
+        public static event HideCaptionDelegate OnHideCaption;
+        public static void HideCaption()
+        {
+            OnHideCaption?.Invoke();
         }
 
     }

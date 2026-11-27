@@ -1,3 +1,4 @@
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -25,6 +26,7 @@ namespace MirageXR
         [SerializeField] private Button _btnWebsocketPort;
         [Header("Toggles")]
         [SerializeField] private Toggle _toggleConsole;
+        [SerializeField] private Toggle _toggleCaptions;
         [Header("Texts")]
         [SerializeField] private TMP_Text _txtServerAddress;
         [SerializeField] private TMP_Text _txtServerPort;
@@ -55,6 +57,27 @@ namespace MirageXR
         public void SetActionOnButtonAudioDeviceClick(UnityAction action) => _buttonAudioDevice.SafeSetListener(action);
         public void SetActionOnButtonDevelopModeClick(UnityAction action) => _buttonDevelopMode.SafeSetListener(action);
         public void SetActionOnToggleConsoleValueChanged(UnityAction<bool> action) => _toggleConsole.SafeSetListener(action);
+        public void SetActionOnToggleCaptionsValueChanged(UnityAction<bool> action)
+        {
+            if (_toggleCaptions == null)
+            {
+                _toggleCaptions = GetComponentsInChildren<Toggle>(true)
+                    .FirstOrDefault(t => t.name == "Captions" || (t.transform.parent != null && t.transform.parent.name == "Captions"));
+            }
+            _toggleCaptions.SafeSetListener(action);
+        }
+        public void SetCaptionsToggleValue(bool value)
+        {
+            if (_toggleCaptions == null)
+            {
+                _toggleCaptions = GetComponentsInChildren<Toggle>(true)
+                    .FirstOrDefault(t => t.name == "Captions" || (t.transform.parent != null && t.transform.parent.name == "Captions"));
+            }
+            if (_toggleCaptions != null)
+            {
+                _toggleCaptions.SetIsOnWithoutNotify(value);
+            }
+        }
         public void SetSketchfabText(string text) => _tmpTextSketchfab.SafeSetText(text);
         public void SetServerAddressText(string text) => _txtServerAddress.SafeSetText(text);
         public void SetServerPortText(string text) => _txtServerPort.SafeSetText(text);

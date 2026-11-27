@@ -1,6 +1,7 @@
 using MirageXR;
 using System;
 using System.Collections;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using TMPro;
@@ -36,6 +37,7 @@ public class ProfileView : PopupBase
     [SerializeField] private ClickCounter _versionClickCounter;
     [SerializeField] private Button _btnGrid;
     [SerializeField] private Button _btnDev;
+    [SerializeField] private Toggle _toggleCaptions;
     [SerializeField] private ScrollRect _scrollRect;
 
     [Space]
@@ -80,6 +82,18 @@ public class ProfileView : PopupBase
 
         _txtVersion.text = string.Format(VERSION_TEXT, Application.version);
 
+        if (_toggleCaptions == null)
+        {
+            _toggleCaptions = GetComponentsInChildren<Toggle>(true)
+                .FirstOrDefault(t => t.name == "CaptionToggle" || (t.transform.parent != null && t.transform.parent.name == "CaptionToggle"));
+        }
+
+        if (_toggleCaptions != null)
+        {
+            _toggleCaptions.SetIsOnWithoutNotify(LearningExperienceEngine.UserSettings.showCaptions);
+            _toggleCaptions.onValueChanged.AddListener(OnCaptionToggleValueChanged);
+        }
+
         // only show link to develop mode settings if developMode is active
         _btnDevelopMode.SetActive(LearningExperienceEngine.UserSettings.developMode);
 
@@ -93,6 +107,11 @@ public class ProfileView : PopupBase
 
     private void OnDestroy()
     {
+        if (_toggleCaptions != null)
+        {
+            _toggleCaptions.onValueChanged.RemoveListener(OnCaptionToggleValueChanged);
+        }
+
         var configManager = RootObject.Instance?.LEE?.ConfigManager;
         if (configManager == null)
         {
@@ -176,6 +195,16 @@ public class ProfileView : PopupBase
 
         _txtUserName.text = LearningExperienceEngine.UserSettings.username;
         UpdateConnectedLRS(LearningExperienceEngine.UserSettings.publicCurrentLearningRecordStore);
+
+        if (_toggleCaptions != null)
+        {
+            _toggleCaptions.SetIsOnWithoutNotify(LearningExperienceEngine.UserSettings.showCaptions);
+        }
+    }
+
+    private void OnCaptionToggleValueChanged(bool value)
+    {
+        LearningExperienceEngine.UserSettings.showCaptions = value;
     }
 
     private void OnClickRegister()

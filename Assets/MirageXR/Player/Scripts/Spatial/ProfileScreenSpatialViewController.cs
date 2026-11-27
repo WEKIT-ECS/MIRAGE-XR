@@ -27,6 +27,8 @@ namespace MirageXR
             View.SetActionOnButtonSketchfabClick(OnSketchfabSignInButtonClicked);
             View.SetActionOnButtonAvatarClick(ShowChangeUserAvatarView);
             View.SetActionOnToggleConsoleValueChanged(OnToggleConsoleValueChanged);
+            View.SetCaptionsToggleValue(LearningExperienceEngine.UserSettings.showCaptions);
+            View.SetActionOnToggleCaptionsValueChanged(OnToggleCaptionsValueChanged);
 
             View.SetActionOnButtonServerAddressClick(ShowChangeServerAddressPanel);
             View.SetActionOnButtonServerPortClick(ShowChangeServerPortPanel);
@@ -52,6 +54,15 @@ namespace MirageXR
             configManager.OnNetworkWebsocketPortChanged += OnNetworkWebsocketPortChanged;
         }
         
+        protected override void OnScreenChanged(ScreenName screenName, string args)
+        {
+            base.OnScreenChanged(screenName, args);
+            if (screenName == ScreenName)
+            {
+                View.SetCaptionsToggleValue(LearningExperienceEngine.UserSettings.showCaptions);
+            }
+        }
+
         private void OnToggleConsoleValueChanged(bool value)
         {
             if (value)
@@ -62,6 +73,11 @@ namespace MirageXR
             {
                 MenuManager.Instance.HideInGameConsole();
             }
+        }
+
+        private void OnToggleCaptionsValueChanged(bool value)
+        {
+            LearningExperienceEngine.UserSettings.showCaptions = value;
         }
 
         private void OnSketchfabUserDataChanged(SketchfabUserInfo userInfo)

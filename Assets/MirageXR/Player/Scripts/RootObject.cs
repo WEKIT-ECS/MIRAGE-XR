@@ -154,6 +154,7 @@ namespace MirageXR
 				_gridManager.Initialization();
 				_cameraCalibrationChecker.Initialization(_viewManager);
 				_platformManager.Initialization();
+				CaptionController.EnsureExists();
 				await _roomTwinManager.InitializationAsync(_lee.AuthorizationManager);
 				await _openAIManager.InitializeAsync();
 				_avatarLoadManager.Initialize(_lee.AuthorizationManager);
