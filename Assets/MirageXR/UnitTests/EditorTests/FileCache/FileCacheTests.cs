@@ -180,6 +180,20 @@ namespace Tests
         }
 
         [Test]
+        public async Task Flush_PersistsPendingChangesWithoutDispose()
+        {
+            // simulates an app that is killed while suspended: Dispose is never called, only Flush on pause
+            var cache = await CreateCacheAsync();
+            (await FileCacheTestUtils.CommitBytesAsync(cache, "a", 10)).Dispose();
+            cache.Flush();
+
+            var reopened = await CreateCacheAsync();
+
+            Assert.AreEqual(1, reopened.Count);
+            Assert.IsNotNull(await AcquireAndReleaseAsync(reopened, "a"));
+        }
+
+        [Test]
         public async Task Initialize_ReconcilesMissingFilesOrphansAndTempFiles()
         {
             var cache = await CreateCacheAsync();

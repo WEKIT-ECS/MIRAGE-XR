@@ -201,6 +201,24 @@ namespace MirageXR
 			await _imageTargetManager.ResetAsync();
 		}
 
+		private void OnApplicationPause(bool pauseStatus)
+		{
+			if (pauseStatus)
+			{
+				// mobile OSes (iOS/visionOS, Android) may kill a suspended app without calling OnDestroy
+				_fileCacheService?.Flush();
+			}
+		}
+
+		private void OnApplicationFocus(bool hasFocus)
+		{
+			if (!hasFocus)
+			{
+				// not every platform reports backgrounding as a pause; a flush without pending changes is a no-op
+				_fileCacheService?.Flush();
+			}
+		}
+
 		private void OnDestroy()
 		{
 			_fileCacheService?.Dispose(); // flushes the cache indices

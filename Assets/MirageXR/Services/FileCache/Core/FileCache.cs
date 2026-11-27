@@ -280,9 +280,21 @@ namespace MirageXR.FileCache
             });
         }
 
-        public Task FlushAsync()
+        public void Flush()
         {
-            return Task.Run(SaveManifest);
+            if (Volatile.Read(ref _isDisposed) != 0)
+            {
+                return;
+            }
+
+            try
+            {
+                SaveManifest();
+            }
+            catch (Exception e)
+            {
+                _log.Warning($"[FileCache:{_options.Name}] could not save the index on flush: {e.Message}");
+            }
         }
 
         /// <summary>Writes pending index changes synchronously (used on shutdown). Later changes are not persisted.</summary>

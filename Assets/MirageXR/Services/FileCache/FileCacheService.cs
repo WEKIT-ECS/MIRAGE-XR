@@ -73,6 +73,14 @@ namespace MirageXR.FileCache
             Cleared?.Invoke();
         }
 
+        public void Flush()
+        {
+            foreach (var cache in _caches)
+            {
+                cache.Flush();
+            }
+        }
+
         public void Dispose()
         {
             foreach (var cache in _caches)

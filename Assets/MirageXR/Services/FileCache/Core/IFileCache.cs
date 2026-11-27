@@ -49,7 +49,10 @@ namespace MirageXR.FileCache
         /// <summary>Removes all entries; leased files are deleted once released.</summary>
         Task ClearAsync();
 
-        /// <summary>Writes pending index changes to disk.</summary>
-        Task FlushAsync();
+        /// <summary>
+        /// Writes pending index changes to disk synchronously (a no-op when nothing changed). Meant for the moment
+        /// the app is paused/backgrounded: mobile OSes may kill a suspended app without any further callback.
+        /// </summary>
+        void Flush();
     }
 }
