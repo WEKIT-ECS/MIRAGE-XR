@@ -1,6 +1,6 @@
-using System;
 using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
+using MirageXR.FileCache;
 
 namespace MirageXR
 {
@@ -10,6 +10,7 @@ namespace MirageXR
 
         private SketchfabUserInfo _userInfo;
         private bool _isSketchfabLoggedIn;
+        private ClearCacheController _clearCacheController;
 
         protected virtual void OnInit()
         {
@@ -44,24 +45,45 @@ namespace MirageXR
             SubscribeAsync().Forget();
         }
 
+        protected override void OnUnbind()
+        {
+            _clearCacheController?.Dispose();
+            _clearCacheController = null;
+            base.OnUnbind();
+        }
+
         protected override void OnScreenChanged(ScreenName screenName, string args)
         {
             base.OnScreenChanged(screenName, args);
             if (screenName == ScreenName)
             {
-                UpdateCacheSizeText();
+                EnsureClearCacheController();
+                UpdateClearCacheRow();
             }
         }
 
-        private void UpdateCacheSizeText()
+        // created lazily: the file cache service only exists once RootObject has finished its async initialization
+        private void EnsureClearCacheController()
         {
             var fileCacheService = RootObject.Instance?.FileCacheService;
-            View.SetCacheSizeText(fileCacheService == null ? string.Empty : FormatMegabytes(fileCacheService.TotalSizeBytes));
+            if (_clearCacheController != null || fileCacheService == null)
+            {
+                return;
+            }
+
+            _clearCacheController = new ClearCacheController(fileCacheService, new UnityFileCacheLog());
+            _clearCacheController.StateChanged += UpdateClearCacheRow;
         }
 
-        private static string FormatMegabytes(long bytes)
+        private void UpdateClearCacheRow()
         {
-            return $"{bytes / (1024.0 * 1024.0):0.0} MB";
+            if (View == null)
+            {
+                return;
+            }
+
+            View.SetCacheSizeText(_clearCacheController?.SizeText ?? string.Empty);
+            View.SetClearCacheInteractable(_clearCacheController?.CanClear ?? false);
         }
 
         private void OnButtonClearCacheClicked()
@@ -71,29 +93,10 @@ namespace MirageXR
 
         private async UniTask ClearCacheAsync()
         {
-            var fileCacheService = RootObject.Instance?.FileCacheService;
-            if (fileCacheService == null)
+            EnsureClearCacheController();
+            if (_clearCacheController != null && await _clearCacheController.ClearAsync())
             {
-                return;
-            }
-
-            View.SetClearCacheInteractable(false);
-            try
-            {
-                await fileCacheService.ClearAllAsync();
                 Toast.Instance.Show("Cache cleared");
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[ProfileScreen] Clearing the cache failed: {e}");
-            }
-            finally
-            {
-                if (View != null)
-                {
-                    View.SetClearCacheInteractable(true);
-                    UpdateCacheSizeText();
-                }
             }
         }
 

@@ -1,4 +1,6 @@
 using MirageXR;
+using MirageXR.FileCache;
+using Utility.UiKit.Runtime.Extensions;
 using System;
 using System.Collections;
 using System.Text.RegularExpressions;
@@ -36,6 +38,8 @@ public class ProfileView : PopupBase
     [SerializeField] private ClickCounter _versionClickCounter;
     [SerializeField] private Button _btnGrid;
     [SerializeField] private Button _btnDev;
+    [SerializeField] private Button _btnClearCache;
+    [SerializeField] private TMP_Text _txtCacheSize;
     [SerializeField] private ScrollRect _scrollRect;
 
     [Space]
@@ -47,6 +51,8 @@ public class ProfileView : PopupBase
     [SerializeField] private GridView _gridViewPrefab;
     [SerializeField] private DevelopView _developViewPrefab;
     [SerializeField] private SketchfabLoginView sketchfabLoginViewPrefab;
+
+    private ClearCacheController _clearCacheController;
 
     public override void Initialization(Action<PopupBase> onClose, params object[] args)
     {
@@ -66,6 +72,7 @@ public class ProfileView : PopupBase
         _btnWebsocketPort.onClick.AddListener(ShowChangeWebsocketPortPanel);
         _btnSelectLRS.onClick.AddListener(ShowLRSPanel);
         btnSketchfab.onClick.AddListener(OnSketchfabLogin);
+        _btnClearCache.SafeSetListener(OnClickClearCache);
         _versionClickCounter.onClickAmountReached.AddListener(OnVersionClickAmountReached);
 
         var configManager = RootObject.Instance.LEE.ConfigManager;
@@ -88,11 +95,17 @@ public class ProfileView : PopupBase
 
         UpdatePrivacyPolicyButtonActive();
 
+        _clearCacheController = new ClearCacheController(RootObject.Instance.FileCacheService, new UnityFileCacheLog());
+        _clearCacheController.StateChanged += UpdateClearCacheRow;
+        UpdateClearCacheRow();
+
         ResetValues();
     }
 
     private void OnDestroy()
     {
+        _clearCacheController?.Dispose();
+
         var configManager = RootObject.Instance?.LEE?.ConfigManager;
         if (configManager == null)
         {
@@ -102,6 +115,25 @@ public class ProfileView : PopupBase
         configManager.OnNetworkServerPortChanged -= OnNetworkServerPortChanged;
         configManager.OnNetworkWebsocketAddressChanged -= OnNetworkWebsocketAddressChanged;
         configManager.OnNetworkWebsocketPortChanged -= OnNetworkWebsocketPortChanged;
+    }
+
+    private void UpdateClearCacheRow()
+    {
+        _txtCacheSize.SafeSetText(_clearCacheController.SizeText);
+        _btnClearCache.SafeSetInteractable(_clearCacheController.CanClear);
+    }
+
+    private void OnClickClearCache()
+    {
+        ClearCacheAsync().Forget();
+    }
+
+    private async UniTask ClearCacheAsync()
+    {
+        if (await _clearCacheController.ClearAsync())
+        {
+            Toast.Instance.Show("Cache cleared");
+        }
     }
 
     private void OnSketchfabLoggedIn(bool value)
