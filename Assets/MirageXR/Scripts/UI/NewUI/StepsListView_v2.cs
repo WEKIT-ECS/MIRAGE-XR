@@ -91,6 +91,18 @@ public class StepsListView_v2 : BaseView
     private Coroutine _coroutine;
     private Activity _activity;
     private ActivityStep _step;
+    private bool _hasStartedActivity;
+
+    private void SetActiveTab(bool steps, bool info, bool calibration)
+    {
+        if (_steps != null) _steps.SetActive(steps);
+        if (_info != null) _info.SetActive(info);
+        if (_calibration != null) _calibration.SetActive(calibration);
+
+        if (_toggleSteps != null) _toggleSteps.SetIsOnWithoutNotify(steps);
+        if (_toggleInfo != null) _toggleInfo.SetIsOnWithoutNotify(info);
+        if (_toggleCalibration != null) _toggleCalibration.SetIsOnWithoutNotify(calibration);
+    }
 
     private GameObject _panelDigitalTwinSettings;
     private RectTransform _panelDigitalTwinSettingsRect;
@@ -222,14 +234,17 @@ public class StepsListView_v2 : BaseView
             _activity = activityManager.Activity;
         }
 
+        _hasStartedActivity = false;
         bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
         if (!isEditor)
         {
-            _toggleInfo.isOn = true;
+            SetActiveTab(steps: false, info: true, calibration: false);
+            MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityInfo);
         }
         else
         {
-            _toggleSteps.isOn = true;
+            SetActiveTab(steps: true, info: false, calibration: false);
+            MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
         }
 
         UpdateView();
@@ -298,14 +313,17 @@ public class StepsListView_v2 : BaseView
     {
         _activity = activity;
 
+        _hasStartedActivity = false;
         bool isEditor = RootObject.Instance.LEE.ActivityManager.IsEditorMode;
         if (!isEditor)
         {
-            _toggleInfo.isOn = true;
+            SetActiveTab(steps: false, info: true, calibration: false);
+            MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityInfo);
         }
         else
         {
-            _toggleSteps.isOn = true;
+            SetActiveTab(steps: true, info: false, calibration: false);
+            MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
         }
 
         UpdateView();
@@ -463,7 +481,8 @@ public class StepsListView_v2 : BaseView
     {
         _activityView.OnBackToHomePressed();
 
-        _toggleSteps.isOn = true;
+        _hasStartedActivity = false;
+        SetActiveTab(steps: true, info: false, calibration: false);
     }
 
     private void OnCloseActivityPressed()
@@ -473,27 +492,24 @@ public class StepsListView_v2 : BaseView
         LearningExperienceEngine.EventManager.ClearAll();
         RootObject.Instance?.LEE?.ActivityManager?.CloseActivity();
         _activityView.OnBackToHomePressed();
-        _toggleSteps.isOn = true;
+        _hasStartedActivity = false;
+        SetActiveTab(steps: true, info: false, calibration: false);
     }
 
     private void OnToggleStepValueChanged(bool value)
     {
-        _steps.SetActive(value);
-        _info.SetActive(!value);
-        _calibration.SetActive(!value);
         if (value)
         {
+            SetActiveTab(steps: true, info: false, calibration: false);
             MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
         }
     }
 
     private void OnToggleInfoValueChanged(bool value)
     {
-        _steps.SetActive(!value);
-        _info.SetActive(value);
-        _calibration.SetActive(!value);
         if (value)
         {
+            SetActiveTab(steps: false, info: true, calibration: false);
             MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityInfo);
             UpdateInfoFields();
             UpdateQRCode();
@@ -642,7 +658,26 @@ public class StepsListView_v2 : BaseView
             if (_defaultThumbnail != null) _defaultThumbnail.SetActive(isEditor);
             if (_btnThumbnail != null) _btnThumbnail.gameObject.SetActive(isEditor);
 
-            if (_btnStartActivity != null) _btnStartActivity.gameObject.SetActive(!isEditor);
+            if (_btnStartActivity != null)
+            {
+                _btnStartActivity.gameObject.SetActive(!isEditor && !_hasStartedActivity);
+                if (!isEditor && _inputFieldActivityDescription != null && _btnStartActivity.transform.parent != null)
+                {
+                    Transform descItem = _inputFieldActivityDescription.transform;
+                    while (descItem != null && descItem.parent != _btnStartActivity.transform.parent)
+                    {
+                        descItem = descItem.parent;
+                    }
+                    if (descItem != null)
+                    {
+                        _btnStartActivity.transform.SetSiblingIndex(descItem.GetSiblingIndex() + 1);
+                    }
+                }
+                else if (isEditor)
+                {
+                    _btnStartActivity.transform.SetSiblingIndex(0);
+                }
+            }
             if (_btnDuplicate != null) _btnDuplicate.gameObject.SetActive(isEditor && canDuplicate);
 
             LoadThumbnail();
@@ -847,11 +882,17 @@ public class StepsListView_v2 : BaseView
 
     private void OnStartActivityPressed()
     {
+        _hasStartedActivity = true;
+        if (_btnStartActivity != null)
+        {
+            _btnStartActivity.gameObject.SetActive(false);
+        }
+
         if (_activity?.Steps != null && _activity.Steps.Count > 0)
         {
             RootObject.Instance.LEE.StepManager.GoToStep(_activity.Steps[0].Id);
         }
-        _toggleSteps.isOn = true;
+        SetActiveTab(steps: true, info: false, calibration: false);
     }
 
     private void OnDuplicateButtonPressed()
@@ -960,11 +1001,9 @@ public class StepsListView_v2 : BaseView
 
     private void OnToggleCalibrationValueChanged(bool value)
     {
-        _steps.SetActive(!value);
-        _info.SetActive(!value);
-        _calibration.SetActive(value);
         if (value)
         {
+            SetActiveTab(steps: false, info: false, calibration: true);
             UpdateDigitalTwinButtonsUI();
             MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityCalibration);
         }
@@ -1211,11 +1250,13 @@ public class StepsListView_v2 : BaseView
 
         if (!value)
         {
-            _toggleInfo.isOn = true;
+            SetActiveTab(steps: false, info: true, calibration: false);
+            MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivityInfo);
         }
         else
         {
-            _toggleSteps.isOn = true;
+            SetActiveTab(steps: true, info: false, calibration: false);
+            MirageXR.EventManager.NotifyMobileHelpPageChanged(RootView_v2.HelpPage.ActivitySteps);
         }
 
         UpdateInfoFields();

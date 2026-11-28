@@ -1,9 +1,11 @@
+using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 using DataModelContentType = LearningExperienceEngine.DataModel.ContentType;
 
 namespace MirageXR
@@ -34,6 +36,13 @@ namespace MirageXR
         [SerializeField] private ChangeableSettingsPanel voiceSettingsElement;
         [SerializeField] private ChangeableSettingsPanel llmModelSettingsElement;
         [SerializeField] private ChangeableSettingsPanel languageSettingsElement;
+
+        [Header("Configuration Checkboxes")]
+        [SerializeField] private Toggle _togglePersistentThread;
+        [SerializeField] private Toggle _toggleStartConversation;
+        [SerializeField] private Toggle _toggleFollowUser;
+        [SerializeField] private Toggle _toggleEyesFollowUser;
+        [SerializeField] private Toggle _toggleStandOnFloorPlane;
 
         //[Header("Audio Mode Toggle")]
         //[SerializeField] private Toggle[] audioToggles;
@@ -102,6 +111,8 @@ namespace MirageXR
 
             ShownSubMenu = VirtualInstructorSubMenu.GeneralSettings;
 
+            EnsureTogglesInitialized();
+
             if (IsContentUpdate && Content is Content<InstructorContentData> instructorContent && instructorContent.ContentData != null)
             {
                 var data = instructorContent.ContentData;
@@ -153,7 +164,17 @@ namespace MirageXR
                     SetLLM(data.LanguageModel);
                 }
 
+                if (_togglePersistentThread != null) _togglePersistentThread.isOn = data.PersistentThread == true;
+                if (_toggleStartConversation != null) _toggleStartConversation.isOn = data.StartConversation == true;
+                if (_toggleFollowUser != null) _toggleFollowUser.isOn = data.FollowUser;
+                if (_toggleEyesFollowUser != null) _toggleEyesFollowUser.isOn = data.EyesFollowUser;
+                if (_toggleStandOnFloorPlane != null) _toggleStandOnFloorPlane.isOn = data.StandOnFloorPlane;
+
                 UpdateUiFromModel();
+            }
+            else
+            {
+                if (_toggleStandOnFloorPlane != null) _toggleStandOnFloorPlane.isOn = true;
             }
         }
 
@@ -176,6 +197,11 @@ namespace MirageXR
 
         protected override void OnAccept()
         {
+            SaveAndCloseAsync().Forget();
+        }
+
+        private async UniTaskVoid SaveAndCloseAsync()
+        {
             bool noCharacterSelected =
                 (!_useReadyPlayerMe && string.IsNullOrEmpty(_prefabName))
                 || _useReadyPlayerMe && string.IsNullOrEmpty(_characterModelUrl);
@@ -186,17 +212,83 @@ namespace MirageXR
                 return;
             }
 
+            string threadId = null;
+            string assistantId = null;
+            bool isPersistent = _togglePersistentThread != null && _togglePersistentThread.isOn;
+
+            var prompt = GetPrompt();
+            var charName = string.IsNullOrEmpty(_prefabName) ? defaultCharacter : _prefabName;
+            var llm = GetLLM();
+
+            bool needsReinitialization = false;
+
+            if (IsContentUpdate && Content is Content<InstructorContentData> existingInstructor && existingInstructor.ContentData != null)
+            {
+                var prevData = existingInstructor.ContentData;
+                threadId = prevData.ThreadId;
+                assistantId = prevData.AssistantId;
+
+                bool promptChanged = prevData.Prompt != prompt;
+                bool nameChanged = prevData.CharacterName != charName;
+                bool modelChanged = prevData.LanguageModel?.ApiName != llm?.ApiName;
+                bool toggledToPersistent = (prevData.PersistentThread != true) && isPersistent;
+
+                if (promptChanged || nameChanged || modelChanged || toggledToPersistent)
+                {
+                    needsReinitialization = true;
+                }
+            }
+            else
+            {
+                needsReinitialization = true;
+            }
+
+            if (isPersistent)
+            {
+                if (needsReinitialization || string.IsNullOrEmpty(threadId) || string.IsNullOrEmpty(assistantId))
+                {
+                    try
+                    {
+                        var initResp = await RootObject.Instance.LEE.ArtificialIntelligenceManager.InitializeInstructorAsync(
+                            charName,
+                            prompt,
+                            llm?.ApiName);
+                        if (initResp != null)
+                        {
+                            threadId = initResp.ThreadId;
+                            assistantId = initResp.AssistantId;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"[Instructor] Failed to pre-initialize persistent thread: {ex.Message}");
+                    }
+                }
+            }
+            else
+            {
+                threadId = null;
+                assistantId = null;
+            }
+
             var data = new InstructorContentData
             {
                 AnimationClip = "Idle", // todo temp (UI reqest!)
-                CharacterName = string.IsNullOrEmpty(_prefabName) ? defaultCharacter : _prefabName,
+                CharacterName = charName,
                 TextToSpeechModel = GetTTS(),
-                Prompt = GetPrompt(),
-                LanguageModel = GetLLM(),
+                Prompt = prompt,
+                LanguageModel = llm,
                 SpeechToTextModel = GetSTT(),
                 UseReadyPlayerMe = _useReadyPlayerMe,
                 CharacterModelUrl = _characterModelUrl,
-                VoiceInstruction = _voiceInstruction
+                VoiceInstruction = _voiceInstruction,
+                PersistentThread = isPersistent,
+                ThreadId = threadId,
+                AssistantId = assistantId,
+                StartConversation = _toggleStartConversation != null && _toggleStartConversation.isOn,
+                FollowUser = _toggleFollowUser != null && _toggleFollowUser.isOn,
+                EyesFollowUser = _toggleEyesFollowUser != null && _toggleEyesFollowUser.isOn,
+                StandOnFloorPlane = _toggleStandOnFloorPlane == null || _toggleStandOnFloorPlane.isOn
             };
 
             var content = CreateContent<InstructorContentData>(DataModelContentType.Instructor);
@@ -283,6 +375,30 @@ namespace MirageXR
         public void OpenAIModelSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.AIModelSettings;
 
         public void OpenLanguageSettingsPanel() => ShownSubMenu = VirtualInstructorSubMenu.LanguageSettings;
+
+        private void EnsureTogglesInitialized()
+        {
+            if (_togglePersistentThread == null) _togglePersistentThread = FindToggleInSettings("Persistent thread");
+            if (_toggleStartConversation == null) _toggleStartConversation = FindToggleInSettings("Start conversation immediately");
+            if (_toggleFollowUser == null) _toggleFollowUser = FindToggleInSettings("Follow user");
+            if (_toggleEyesFollowUser == null) _toggleEyesFollowUser = FindToggleInSettings("Eyes follow user");
+            if (_toggleStandOnFloorPlane == null) _toggleStandOnFloorPlane = FindToggleInSettings("Stand on floor plane");
+        }
+
+        private Toggle FindToggleInSettings(string label)
+        {
+            if (settingsPanel == null) return null;
+            var texts = settingsPanel.GetComponentsInChildren<TMP_Text>(true);
+            foreach (var text in texts)
+            {
+                if (text.text.Equals(label, StringComparison.OrdinalIgnoreCase))
+                {
+                    var toggle = text.transform.parent != null ? text.transform.parent.GetComponentInChildren<Toggle>(true) : null;
+                    if (toggle != null) return toggle;
+                }
+            }
+            return null;
+        }
     }
 
     [Serializable]

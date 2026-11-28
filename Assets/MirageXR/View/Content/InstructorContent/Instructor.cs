@@ -59,18 +59,61 @@ namespace MirageXR.View
             PlayAnimationClip(content.ContentData.AnimationClip);
 
             RootObject.Instance.VirtualInstructorOrchestrator.AddInstructor(this);
-            var response = await ArtificialIntelligenceManager.InitializeInstructorAsync(
-                _instructorContent.ContentData.CharacterName, 
-                _instructorContent.ContentData.Prompt, 
-                _instructorContent.ContentData.LanguageModel.ApiName);
 
-            if (response == null)
+            var data = _instructorContent.ContentData;
+
+            if (data != null && !string.IsNullOrEmpty(data.ThreadId) && !string.IsNullOrEmpty(data.AssistantId))
             {
-                Debug.LogError("Failed to initialize instructor");
-                return;
+                _threadId = data.ThreadId;
+                _assistantId = data.AssistantId;
             }
-            _threadId = response.ThreadId;
-            _assistantId = response.AssistantId;
+            else
+            {
+                var response = await ArtificialIntelligenceManager.InitializeInstructorAsync(
+                    _instructorContent.ContentData.CharacterName, 
+                    _instructorContent.ContentData.Prompt, 
+                    _instructorContent.ContentData.LanguageModel.ApiName);
+
+                if (response == null)
+                {
+                    Debug.LogError("Failed to initialize instructor");
+                    return;
+                }
+                _threadId = response.ThreadId;
+                _assistantId = response.AssistantId;
+
+                if (data != null && data.PersistentThread == true && (RootObject.Instance?.LEE?.ActivityManager?.IsEditorMode ?? false))
+                {
+                    data.ThreadId = _threadId;
+                    data.AssistantId = _assistantId;
+                    RootObject.Instance.LEE.ContentManager.UpdateContent(_instructorContent);
+                }
+            }
+
+            if (data != null)
+            {
+                if (data.StandOnFloorPlane && RootObject.Instance?.FloorManagerWithRaycastFallback != null)
+                {
+                    var floorY = RootObject.Instance.FloorManagerWithRaycastFallback.GetFloorHeight(transform.position);
+                    transform.position = new Vector3(transform.position.x, floorY, transform.position.z);
+                }
+
+                var turnToUser = GetComponentInChildren<TurnToUser>() ?? GetComponent<TurnToUser>();
+                if (turnToUser != null)
+                {
+                    turnToUser.enabled = data.EyesFollowUser;
+                }
+                else if (data.EyesFollowUser)
+                {
+                    turnToUser = gameObject.AddComponent<TurnToUser>();
+                    turnToUser.RotationOffset = Quaternion.Euler(0, 180, 0);
+                }
+
+                if (data.StartConversation == true)
+                {
+                    StartConversationAsync().Forget();
+                }
+            }
 
             try 
             {
@@ -101,6 +144,97 @@ namespace MirageXR.View
             catch (Exception e)
             {
                 Debug.LogError($"Error setting up spatial VI Control Panel: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Updates the instructor content configuration dynamically without re-instantiating the GameObject.
+        /// Useful when editing options (e.g., persistent thread, follow user) in Edit Mode.
+        /// </summary>
+        public void UpdateContent(Content<InstructorContentData> content)
+        {
+            _instructorContent = content;
+            var data = content?.ContentData;
+            if (data == null) return;
+
+            _threadId = data.ThreadId;
+            _assistantId = data.AssistantId;
+
+            gameObject.name = data.CharacterName;
+            PlayAnimationClip(data.AnimationClip);
+
+            if (data.StandOnFloorPlane && RootObject.Instance?.FloorManagerWithRaycastFallback != null)
+            {
+                var floorY = RootObject.Instance.FloorManagerWithRaycastFallback.GetFloorHeight(transform.position);
+                transform.position = new Vector3(transform.position.x, floorY, transform.position.z);
+            }
+
+            var turnToUser = GetComponentInChildren<TurnToUser>() ?? GetComponent<TurnToUser>();
+            if (turnToUser != null)
+            {
+                turnToUser.enabled = data.EyesFollowUser;
+            }
+            else if (data.EyesFollowUser)
+            {
+                turnToUser = gameObject.AddComponent<TurnToUser>();
+                turnToUser.RotationOffset = Quaternion.Euler(0, 180, 0);
+            }
+
+            if (data.StartConversation == true)
+            {
+                StartConversationAsync().Forget();
+            }
+        }
+
+        private async UniTaskVoid StartConversationAsync()
+        {
+            try
+            {
+                await UniTask.Delay(500);
+                var clip = await AskInstructorWithStringQuestion("get started");
+                if (clip != null)
+                {
+                    PlayAudio(clip);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[Instructor] StartConversation failed: {ex.Message}");
+            }
+        }
+
+        private void Update()
+        {
+            var data = _instructorContent?.ContentData;
+            if (data == null) return;
+
+            if (data.FollowUser)
+            {
+                var cam = RootObject.Instance?.BaseCamera?.transform ?? Camera.main?.transform;
+                if (cam != null)
+                {
+                    var targetPos = new Vector3(cam.position.x, transform.position.y, cam.position.z);
+                    var distance = Vector3.Distance(transform.position, targetPos);
+                    if (distance > 2.0f)
+                    {
+                        var dir = (targetPos - transform.position).normalized;
+                        transform.position += dir * (1.2f * Time.deltaTime);
+                        PlayAnimationClip("Walk");
+                    }
+                    else
+                    {
+                        PlayAnimationClip(data.AnimationClip ?? "Idle");
+                    }
+                }
+            }
+
+            if (data.StandOnFloorPlane && RootObject.Instance?.FloorManagerWithRaycastFallback != null)
+            {
+                var floorY = RootObject.Instance.FloorManagerWithRaycastFallback.GetFloorHeight(transform.position);
+                if (Mathf.Abs(transform.position.y - floorY) > 0.05f)
+                {
+                    transform.position = new Vector3(transform.position.x, Mathf.Lerp(transform.position.y, floorY, Time.deltaTime * 5f), transform.position.z);
+                }
             }
         }
 

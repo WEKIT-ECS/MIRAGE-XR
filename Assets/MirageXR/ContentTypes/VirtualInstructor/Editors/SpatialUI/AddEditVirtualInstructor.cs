@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using LearningExperienceEngine.DataModel;
 using MirageXR;
 using TMPro;
@@ -73,6 +74,13 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
     [SerializeField] private SpatialUiAiSpeechToTextModel speechToTextModelPrefab;
     [SerializeField] private SpatialUiAiTextToSpeechModel textToSpeechModelPrefab;
 
+    [Header("Configuration Checkboxes")]
+    [SerializeField] private Toggle _togglePersistentThread;
+    [SerializeField] private Toggle _toggleStartConversation;
+    [SerializeField] private Toggle _toggleFollowUser;
+    [SerializeField] private Toggle _toggleEyesFollowUser;
+    [SerializeField] private Toggle _toggleStandOnFloorPlane;
+
     private Content<InstructorContentData> _instructorContentData;
 
 	private string _triggers = String.Empty; // todo
@@ -121,18 +129,28 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
         interactionSettingToggleClosed.onValueChanged.AddListener(SetInteractionSettingsActive);
         avatarModelSettingPanel.CharacterModelSelected += OnAvatarModelSelected;
 
-        if (IsContentUpdate && _instructorContentData != null)
+        EnsureTogglesInitialized();
+
+        if (IsContentUpdate && _instructorContentData?.ContentData != null)
         {
-            _voiceInstruction = _instructorContentData.ContentData.VoiceInstruction ?? string.Empty; 
-            UpdatePrompt(_instructorContentData.ContentData.Prompt);
-            SetAITextToSpeechModel(_instructorContentData.ContentData.TextToSpeechModel, _voiceInstruction);
-            SetAISpeechToTextModel(_instructorContentData.ContentData.SpeechToTextModel);
-            SetAILanguageModel(_instructorContentData.ContentData.LanguageModel);
-            UpdateName(_instructorContentData.ContentData.CharacterName);
-            UpdateAnimationSetting(_instructorContentData.ContentData.AnimationClip);
-            if (_instructorContentData.ContentData.UseReadyPlayerMe && !string.IsNullOrEmpty(_instructorContentData.ContentData.CharacterModelUrl))
+            var data = _instructorContentData.ContentData;
+            _voiceInstruction = data.VoiceInstruction ?? string.Empty; 
+            UpdatePrompt(data.Prompt);
+            SetAITextToSpeechModel(data.TextToSpeechModel, _voiceInstruction);
+            SetAISpeechToTextModel(data.SpeechToTextModel);
+            SetAILanguageModel(data.LanguageModel);
+            UpdateName(data.CharacterName);
+            UpdateAnimationSetting(data.AnimationClip);
+
+            if (_togglePersistentThread != null) _togglePersistentThread.isOn = data.PersistentThread == true;
+            if (_toggleStartConversation != null) _toggleStartConversation.isOn = data.StartConversation == true;
+            if (_toggleFollowUser != null) _toggleFollowUser.isOn = data.FollowUser;
+            if (_toggleEyesFollowUser != null) _toggleEyesFollowUser.isOn = data.EyesFollowUser;
+            if (_toggleStandOnFloorPlane != null) _toggleStandOnFloorPlane.isOn = data.StandOnFloorPlane;
+
+            if (data.UseReadyPlayerMe && !string.IsNullOrEmpty(data.CharacterModelUrl))
             {
-                string avatarId = AvatarLoadUtils.GetId(_instructorContentData.ContentData.CharacterModelUrl);
+                string avatarId = AvatarLoadUtils.GetId(data.CharacterModelUrl);
                 if (!string.IsNullOrEmpty(avatarId) && !avatarId.Equals("DefaultAvatar", StringComparison.OrdinalIgnoreCase))
                 {
                     if (RootObject.Instance?.AvatarLibraryManager != null && !RootObject.Instance.AvatarLibraryManager.Contains(avatarId))
@@ -143,10 +161,74 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
                 OnAvatarModelSelected(avatarId);
             }
         }
+        else
+        {
+            if (_toggleStandOnFloorPlane != null) _toggleStandOnFloorPlane.isOn = true;
+        }
     }
 
     protected override void OnAccept()
     {
+        SaveAndCloseAsync().Forget();
+    }
+
+    private async UniTaskVoid SaveAndCloseAsync()
+    {
+        EnsureTogglesInitialized();
+        string threadId = null;
+        string assistantId = null;
+        bool isPersistent = _togglePersistentThread != null && _togglePersistentThread.isOn;
+        bool needsReinitialization = false;
+
+        if (IsContentUpdate && _instructorContentData?.ContentData != null)
+        {
+            var prevData = _instructorContentData.ContentData;
+            threadId = prevData.ThreadId;
+            assistantId = prevData.AssistantId;
+
+            bool promptChanged = prevData.Prompt != _prompt;
+            bool nameChanged = prevData.CharacterName != _characterName;
+            bool modelChanged = prevData.LanguageModel?.ApiName != _languageModel?.ApiName;
+            bool toggledToPersistent = (prevData.PersistentThread != true) && isPersistent;
+
+            if (promptChanged || nameChanged || modelChanged || toggledToPersistent)
+            {
+                needsReinitialization = true;
+            }
+        }
+        else
+        {
+            needsReinitialization = true;
+        }
+
+        if (isPersistent)
+        {
+            if (needsReinitialization || string.IsNullOrEmpty(threadId) || string.IsNullOrEmpty(assistantId))
+            {
+                try
+                {
+                    var initResp = await RootObject.Instance.LEE.ArtificialIntelligenceManager.InitializeInstructorAsync(
+                        _characterName,
+                        _prompt,
+                        _languageModel?.ApiName);
+                    if (initResp != null)
+                    {
+                        threadId = initResp.ThreadId;
+                        assistantId = initResp.AssistantId;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[AddEditVirtualInstructor] Failed to pre-initialize persistent thread: {ex.Message}");
+                }
+            }
+        }
+        else
+        {
+            threadId = null;
+            assistantId = null;
+        }
+
         _instructorContentData = CreateContent<InstructorContentData>(ContentType.Instructor);
         _instructorContentData.Location = new Location { Position = new Vector3(-0.4f, -1.2f, 0), Rotation = new Vector3(0, 180, 0), Scale = Vector3.one };
         _instructorContentData.ContentData.AnimationClip = _animationClip;
@@ -154,10 +236,18 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
         _instructorContentData.ContentData.UseReadyPlayerMe = _useReadyPlayerMe;
         _instructorContentData.ContentData.CharacterModelUrl = _characterModelUrl;
         _instructorContentData.ContentData.Prompt = _prompt;
-        _instructorContentData.ContentData.LanguageModel =_languageModel;
+        _instructorContentData.ContentData.LanguageModel = _languageModel;
         _instructorContentData.ContentData.SpeechToTextModel = _speechToTextModel;
         _instructorContentData.ContentData.TextToSpeechModel = _textToSpeechModel;
         _instructorContentData.ContentData.VoiceInstruction = _voiceInstruction;
+
+        _instructorContentData.ContentData.PersistentThread = isPersistent;
+        _instructorContentData.ContentData.ThreadId = threadId;
+        _instructorContentData.ContentData.AssistantId = assistantId;
+        _instructorContentData.ContentData.StartConversation = _toggleStartConversation != null && _toggleStartConversation.isOn;
+        _instructorContentData.ContentData.FollowUser = _toggleFollowUser != null && _toggleFollowUser.isOn;
+        _instructorContentData.ContentData.EyesFollowUser = _toggleEyesFollowUser != null && _toggleEyesFollowUser.isOn;
+        _instructorContentData.ContentData.StandOnFloorPlane = _toggleStandOnFloorPlane == null || _toggleStandOnFloorPlane.isOn;
 
         if (IsContentUpdate)
         {
@@ -415,5 +505,29 @@ public class AddEditVirtualInstructor : EditorSpatialView   //TODO: rename to Vi
         _textToSpeechModel = model;
         _voiceInstruction = voiceInstruction;
         aiVoice.text = model.Name;
+    }
+
+    private void EnsureTogglesInitialized()
+    {
+        if (_togglePersistentThread == null) _togglePersistentThread = FindToggleInContent("Persistent thread");
+        if (_toggleStartConversation == null) _toggleStartConversation = FindToggleInContent("Start conversation immediately");
+        if (_toggleFollowUser == null) _toggleFollowUser = FindToggleInContent("Follow user");
+        if (_toggleEyesFollowUser == null) _toggleEyesFollowUser = FindToggleInContent("Eyes follow user");
+        if (_toggleStandOnFloorPlane == null) _toggleStandOnFloorPlane = FindToggleInContent("Stand on floor plane");
+    }
+
+    private Toggle FindToggleInContent(string label)
+    {
+        if (content == null) return null;
+        var texts = content.GetComponentsInChildren<TMP_Text>(true);
+        foreach (var text in texts)
+        {
+            if (text.text.Equals(label, StringComparison.OrdinalIgnoreCase))
+            {
+                var toggle = text.transform.parent != null ? text.transform.parent.GetComponentInChildren<Toggle>(true) : null;
+                if (toggle != null) return toggle;
+            }
+        }
+        return null;
     }
 }

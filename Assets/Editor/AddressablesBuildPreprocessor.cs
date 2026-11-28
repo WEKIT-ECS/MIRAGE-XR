@@ -20,11 +20,13 @@ namespace Editor
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            // if (!CheckAddressableContent())
-            // {
-            //     ShowDialogAfter(DIALOG_SPAWN_TIME);
-            //     throw new BuildFailedException(ADDRESSABLES_ERROR_MESSAGE);
-            // }
+#if !UNITY_VISIONOS && !VISION_OS
+            if (!CheckAddressableContent())
+            {
+                ShowDialogAfter(DIALOG_SPAWN_TIME);
+                throw new BuildFailedException(ADDRESSABLES_ERROR_MESSAGE);
+            }
+#endif
         }
 
         private static bool CheckAddressableContent()
