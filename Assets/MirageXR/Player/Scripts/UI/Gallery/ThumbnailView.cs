@@ -16,6 +16,8 @@ namespace MirageXR
         [SerializeField] private Button _deleteButton;
 
         private string _elementId;
+        private Sprite _ownedSprite;
+        private Texture2D _ownedTexture;
 
         public delegate void ThumbnailEventHandler(string elementId);
         public event ThumbnailEventHandler ElementSelected;
@@ -24,18 +26,20 @@ namespace MirageXR
 
         public event ThumbnailEventHandler ElementDeleted;
 
+        /// <summary>
+        /// The displayed thumbnail. The view owns it and destroys it when it is replaced or the view is destroyed.
+        /// </summary>
         public Texture2D DisplayedThumbnail
         {
-            get => _thumbnailImage.sprite.texture;
+            get => _ownedTexture;
             private set
             {
-                if (_thumbnailImage.sprite != null)
-                {
-                    Destroy(_thumbnailImage.sprite);
-                }
+                ReleaseThumbnail(value);
                 if (value != null)
                 {
-                    _thumbnailImage.sprite = Sprite.Create(value, new Rect(0, 0, value.width, value.height), new Vector2(0.5f, 1f));
+                    _ownedTexture = value;
+                    _ownedSprite = Sprite.Create(value, new Rect(0, 0, value.width, value.height), new Vector2(0.5f, 1f));
+                    _thumbnailImage.sprite = _ownedSprite;
                     _thumbnailImage.preserveAspect = true;
                     _thumbnailImage.color = new Color(1, 1, 1, 1);
                 }
@@ -84,10 +88,17 @@ namespace MirageXR
                 {
                     try
                     {
+                        var requestedElementId = _elementId;
                         var ct = destroyCancellationToken;
-                        thumbnail = await ThumbnailProvider.GetThumbnailAsync(_elementId, ct);
-                        if (ct.IsCancellationRequested || this == null)
+                        thumbnail = await ThumbnailProvider.GetThumbnailAsync(requestedElementId, ct);
+                        if (ct.IsCancellationRequested || this == null || requestedElementId != _elementId)
                         {
+                            // outdated result: the view was destroyed or shows another element by now
+                            if (thumbnail != null)
+                            {
+                                Destroy(thumbnail);
+                            }
+
                             return;
                         }
                     }
@@ -128,6 +139,32 @@ namespace MirageXR
             {
                 ElementDeleted?.Invoke(_elementId);
             }
+        }
+
+        private void OnDestroy()
+        {
+            ReleaseThumbnail(null);
+        }
+
+        private void ReleaseThumbnail(Texture2D replacement)
+        {
+            if (_ownedSprite != null)
+            {
+                if (_thumbnailImage != null && _thumbnailImage.sprite == _ownedSprite)
+                {
+                    _thumbnailImage.sprite = null;
+                }
+
+                Destroy(_ownedSprite);
+            }
+
+            if (_ownedTexture != null && _ownedTexture != replacement)
+            {
+                Destroy(_ownedTexture);
+            }
+
+            _ownedSprite = null;
+            _ownedTexture = null;
         }
     }
 }

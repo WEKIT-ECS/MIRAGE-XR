@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
+using MirageXR.FileCache;
 
 namespace MirageXR
 {
@@ -9,6 +10,7 @@ namespace MirageXR
 
         private SketchfabUserInfo _userInfo;
         private bool _isSketchfabLoggedIn;
+        private ClearCacheController _clearCacheController;
 
         protected virtual void OnInit()
         {
@@ -33,6 +35,7 @@ namespace MirageXR
             View.SetActionOnButtonWebsocketAddressClick(ShowChangeWebsocketAddressPanel);
             View.SetActionOnButtonWebsocketPortClick(ShowChangeWebsocketPortPanel);
             View.SetActionOnButtonGridClick(ShowGridSettingsView);
+            View.SetActionOnButtonClearCacheClick(OnButtonClearCacheClicked);
 
             View.gameObject.SetActive(false);
 
@@ -40,6 +43,61 @@ namespace MirageXR
             sketchfabManager.OnSketchfabUserDataChanged += OnSketchfabUserDataChanged;
             sketchfabManager.OnSketchfabLoggedIn += OnSketchfabLoggedIn;
             SubscribeAsync().Forget();
+        }
+
+        protected override void OnUnbind()
+        {
+            _clearCacheController?.Dispose();
+            _clearCacheController = null;
+            base.OnUnbind();
+        }
+
+        protected override void OnScreenChanged(ScreenName screenName, string args)
+        {
+            base.OnScreenChanged(screenName, args);
+            if (screenName == ScreenName)
+            {
+                EnsureClearCacheController();
+                UpdateClearCacheRow();
+            }
+        }
+
+        // created lazily: the file cache service only exists once RootObject has finished its async initialization
+        private void EnsureClearCacheController()
+        {
+            var fileCacheService = RootObject.Instance?.FileCacheService;
+            if (_clearCacheController != null || fileCacheService == null)
+            {
+                return;
+            }
+
+            _clearCacheController = new ClearCacheController(fileCacheService, new UnityFileCacheLog());
+            _clearCacheController.StateChanged += UpdateClearCacheRow;
+        }
+
+        private void UpdateClearCacheRow()
+        {
+            if (View == null)
+            {
+                return;
+            }
+
+            View.SetCacheSizeText(_clearCacheController?.SizeText ?? string.Empty);
+            View.SetClearCacheInteractable(_clearCacheController?.CanClear ?? false);
+        }
+
+        private void OnButtonClearCacheClicked()
+        {
+            ClearCacheAsync().Forget();
+        }
+
+        private async UniTask ClearCacheAsync()
+        {
+            EnsureClearCacheController();
+            if (_clearCacheController != null && await _clearCacheController.ClearAsync())
+            {
+                Toast.Instance.Show("Cache cleared");
+            }
         }
 
         private async UniTask SubscribeAsync()

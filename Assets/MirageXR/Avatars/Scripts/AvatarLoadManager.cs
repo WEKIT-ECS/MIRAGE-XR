@@ -2,13 +2,12 @@ using Cysharp.Threading.Tasks;
 using GLTFast;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using LearningExperienceEngine.NewDataModel;
+using MirageXR.FileCache;
 
 namespace MirageXR
 {
@@ -34,11 +33,11 @@ namespace MirageXR
             }
         }
 
+        private const string ModelFileExtension = ".glb";
+        private const string ThumbnailFileExtension = ".img";
+
         private LearningExperienceEngine.IAuthorizationManager _authorizationManager;
-
-        private Dictionary<string, Texture2D> thumbnailCache = new Dictionary<string, Texture2D>();
-
-        private static readonly SemaphoreSlim _networkLock = new SemaphoreSlim(1, 1);
+        private IFileCacheService _fileCacheService;
 
         private string AvatarListEndpoint => AvatarBaseEndpoint + "list";
 
@@ -46,9 +45,10 @@ namespace MirageXR
 
         private string AvatarModelEndpoint => AvatarBaseEndpoint + "get";
 
-        public void Initialize(LearningExperienceEngine.IAuthorizationManager authorizationManager)
+        public void Initialize(LearningExperienceEngine.IAuthorizationManager authorizationManager, IFileCacheService fileCacheService)
         {
             _authorizationManager = authorizationManager;
+            _fileCacheService = fileCacheService;
         }
 
         public async Task<string[]> GetListOfAvatarsAsync()
@@ -58,10 +58,7 @@ namespace MirageXR
                 using (UnityWebRequest webRequest = UnityWebRequest.Get(AvatarListEndpoint))
                 {
                     webRequest.certificateHandler = new BypassCertificateHandler();
-                    if (_authorizationManager != null && !string.IsNullOrEmpty(_authorizationManager.AccessToken))
-                    {
-                        webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
-                    }
+                    AuthorizationHeaders.Apply(webRequest, _authorizationManager);
                     await webRequest.SendWebRequest();
                     if (webRequest.result == UnityWebRequest.Result.Success)
                     {
@@ -96,53 +93,28 @@ namespace MirageXR
                 return null;
             }
 
+            if (_fileCacheService == null)
+            {
+                Debug.LogError("[AvatarLoadManager] Not initialized, cannot load avatar models.", this);
+                return null;
+            }
+
             string url = AvatarModelEndpoint + "?avatar_name=" + avatarName;
 
             try
             {
-                using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+                var request = new CacheRequest(url, AuthorizationHeaders.Create(_authorizationManager), ModelFileExtension);
+                GltfImport gltf = await _fileCacheService.AvatarModels.LoadAsync(request, LoadGltfFileAsync);
+                if (gltf == null)
                 {
-                    webRequest.certificateHandler = new BypassCertificateHandler();
-                    if (_authorizationManager != null && !string.IsNullOrEmpty(_authorizationManager.AccessToken))
-                    {
-                        webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
-                    }
-
-                    await webRequest.SendWebRequest();
-                    if (webRequest.result != UnityWebRequest.Result.Success)
-                    {
-                        Debug.LogWarning($"[AvatarLoadManager] Error downloading avatar model for '{avatarName}' from {url}: {webRequest.error}");
-                        return null;
-                    }
-                    byte[] gltfData = webRequest.downloadHandler.data;
-                    if (gltfData == null || gltfData.Length == 0)
-                    {
-                        Debug.LogWarning($"[AvatarLoadManager] Downloaded avatar data for '{avatarName}' is empty.");
-                        return null;
-                    }
-
-                    GltfImport gltf = new GltfImport();
-                    bool success = await gltf.Load(gltfData);
-
-                    if (success)
-                    {
-                        return gltf;
-                    }
-                    else
-                    {
-                        Debug.LogError($"[AvatarLoadManager] Could not load downloaded bytes as GLTF model for '{avatarName}'", this);
-                        return null;
-                    }
+                    Debug.LogWarning($"[AvatarLoadManager] Could not load avatar model '{avatarName}' from {url}");
                 }
-            }
-            catch (UnityWebRequestException ex)
-            {
-                Debug.LogWarning($"[AvatarLoadManager] Failed to fetch avatar model '{avatarName}' from {url}: {ex.Message}");
-                return null;
+
+                return gltf;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[AvatarLoadManager] Exception downloading avatar model '{avatarName}': {ex.Message}");
+                Debug.LogError($"[AvatarLoadManager] Exception loading avatar model '{avatarName}': {ex.Message}");
                 return null;
             }
         }
@@ -177,6 +149,7 @@ namespace MirageXR
             }
         }
 
+        /// <inheritdoc/>
         public async UniTask<Texture2D> GetThumbnailAsync(string avatarName, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(avatarName)) return null;
@@ -187,58 +160,50 @@ namespace MirageXR
                 return null;
             }
 
-            if (thumbnailCache.TryGetValue(cleanName, out Texture2D cachedTexture))
+            if (_fileCacheService == null)
             {
-                return cachedTexture;
+                Debug.LogError("[AvatarLoadManager] Not initialized, cannot load thumbnails.", this);
+                return null;
             }
-
-            await _networkLock.WaitAsync(cancellationToken);
 
             try
             {
-                // re-check if the thumbnail was loaded in the meantime
-                if (thumbnailCache.TryGetValue(cleanName, out Texture2D doubleCheck))
-                {
-                    return doubleCheck;
-                }
-
                 string thumbnailUrl = AvatarThumbnailEndpoint + "?avatar_name=" + cleanName;
-                using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(thumbnailUrl))
+                var request = new CacheRequest(thumbnailUrl, AuthorizationHeaders.Create(_authorizationManager), ThumbnailFileExtension);
+                Texture2D thumbnail = await CachedTextureLoader.LoadAsync(_fileCacheService.Thumbnails, request, cancellationToken);
+                if (thumbnail == null)
                 {
-                    webRequest.certificateHandler = new BypassCertificateHandler();
-                    if (_authorizationManager != null && !string.IsNullOrEmpty(_authorizationManager.AccessToken))
-                    {
-                        webRequest.SetRequestHeader("Authorization", $"Bearer {_authorizationManager.AccessToken}");
-                    }
-                    await webRequest.SendWebRequest().WithCancellation(cancellationToken);
-
-                    if (webRequest.result == UnityWebRequest.Result.Success)
-                    {
-                        Texture2D thumbnail = DownloadHandlerTexture.GetContent(webRequest);
-                        thumbnailCache[cleanName] = thumbnail;
-                        return thumbnail;
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"[AvatarLoadManager] Error fetching thumbnail for '{cleanName}': " + webRequest.error);
-                        return null;
-                    }
+                    Debug.LogWarning($"[AvatarLoadManager] Could not load thumbnail for '{cleanName}'");
                 }
+
+                return thumbnail;
             }
-            catch (UnityWebRequestException ex)
+            catch (OperationCanceledException)
             {
-                Debug.LogWarning($"[AvatarLoadManager] Failed to fetch thumbnail for '{cleanName}': " + ex.Message);
-                return null;
+                throw;
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[AvatarLoadManager] Exception fetching thumbnail for '{cleanName}': " + ex.Message);
+                Debug.LogWarning($"[AvatarLoadManager] Exception loading thumbnail for '{cleanName}': " + ex.Message);
                 return null;
+            }
+        }
+
+        private static async Task<GltfImport> LoadGltfFileAsync(string path, CancellationToken cancellationToken)
+        {
+            var gltf = new GltfImport();
+            bool success = false;
+            try
+            {
+                success = await gltf.LoadFile(path, null, null, cancellationToken);
+                return success ? gltf : null;
             }
             finally
             {
-                // release network lock
-                _networkLock.Release();
+                if (!success)
+                {
+                    gltf.Dispose();
+                }
             }
         }
     }
