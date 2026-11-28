@@ -7,6 +7,10 @@ namespace MirageXR.FileCache
     /// </summary>
     public sealed class FileCacheOptions
     {
+        /// <param name="name">Name of the cache, used in log messages.</param>
+        /// <param name="rootDirectory">Folder that exclusively belongs to this cache; files in it that are not in the index are deleted.</param>
+        /// <param name="maxSizeBytes">Upper bound of the total size of all cached files.</param>
+        /// <param name="timeToLive">How long an entry is used without asking the server again.</param>
         public FileCacheOptions(string name, string rootDirectory, long maxSizeBytes, TimeSpan timeToLive)
         {
             if (string.IsNullOrWhiteSpace(name))

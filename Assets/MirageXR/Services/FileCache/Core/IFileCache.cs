@@ -9,11 +9,13 @@ namespace MirageXR.FileCache
     /// </summary>
     public interface IFileCache : IDisposable
     {
+        /// <summary>Configuration of this cache (name, folder, size limit, TTL).</summary>
         FileCacheOptions Options { get; }
 
         /// <summary>Total size of all cached files in bytes.</summary>
         long SizeBytes { get; }
 
+        /// <summary>Number of cached entries.</summary>
         int Count { get; }
 
         /// <summary>Loads the index, removes interrupted downloads and reconciles the index with the directory.</summary>

@@ -18,6 +18,7 @@ namespace MirageXR.FileCache
             IsStale = isStale;
         }
 
+        /// <summary>Cache key of the request this file belongs to.</summary>
         public string Key { get; }
 
         /// <summary>Absolute path of the local file.</summary>
@@ -29,6 +30,7 @@ namespace MirageXR.FileCache
         /// <summary>True if the file is past its TTL and could not be revalidated (e.g. offline).</summary>
         public bool IsStale { get; }
 
+        /// <summary>Releases the file; afterwards it may be evicted or deleted at any time.</summary>
         public void Dispose()
         {
             _lease.Dispose();

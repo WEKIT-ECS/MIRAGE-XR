@@ -57,14 +57,19 @@ namespace MirageXR.FileCache
             }
         }
 
+        /// <inheritdoc/>
         public event Action Cleared;
 
+        /// <inheritdoc/>
         public CachedFileProvider AvatarModels { get; }
 
+        /// <inheritdoc/>
         public CachedFileProvider EnvironmentModels { get; }
 
+        /// <inheritdoc/>
         public CachedFileProvider Thumbnails { get; }
 
+        /// <inheritdoc/>
         public long TotalSizeBytes => _caches.Sum(cache => cache.SizeBytes);
 
         /// <summary>Initializes all caches. Never throws: a cache that fails to initialize starts empty.</summary>
@@ -73,12 +78,14 @@ namespace MirageXR.FileCache
             return Task.WhenAll(_caches.Select(InitializeCacheAsync));
         }
 
+        /// <inheritdoc/>
         public async Task ClearAllAsync()
         {
             await Task.WhenAll(_caches.Select(cache => cache.ClearAsync()));
             Cleared?.Invoke();
         }
 
+        /// <inheritdoc/>
         public void Flush()
         {
             foreach (var cache in _caches)
@@ -87,6 +94,7 @@ namespace MirageXR.FileCache
             }
         }
 
+        /// <summary>Writes the indices of all caches to disk; the caches must not be used afterwards.</summary>
         public void Dispose()
         {
             foreach (var cache in _caches)

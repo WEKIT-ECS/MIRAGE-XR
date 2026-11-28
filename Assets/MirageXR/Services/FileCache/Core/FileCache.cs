@@ -45,6 +45,9 @@ namespace MirageXR.FileCache
         private bool _isSaveScheduled;
         private int _isDisposed;
 
+        /// <param name="options">Configuration; the root directory must belong exclusively to this cache.</param>
+        /// <param name="clock">Time source for TTL and LRU; defaults to the system time.</param>
+        /// <param name="log">Log sink; defaults to no logging.</param>
         public FileCache(FileCacheOptions options, IClock clock = null, IFileCacheLog log = null)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
@@ -54,8 +57,10 @@ namespace MirageXR.FileCache
             _manifestPath = Path.Combine(options.RootDirectory, ManifestFileName);
         }
 
+        /// <inheritdoc/>
         public FileCacheOptions Options => _options;
 
+        /// <inheritdoc/>
         public long SizeBytes
         {
             get
@@ -67,6 +72,7 @@ namespace MirageXR.FileCache
             }
         }
 
+        /// <inheritdoc/>
         public int Count
         {
             get
@@ -78,11 +84,13 @@ namespace MirageXR.FileCache
             }
         }
 
+        /// <inheritdoc/>
         public Task InitializeAsync()
         {
             return Task.Run(InitializeCore);
         }
 
+        /// <inheritdoc/>
         public Task<FileLease> TryAcquireAsync(string key)
         {
             if (key == null)
@@ -117,6 +125,7 @@ namespace MirageXR.FileCache
             });
         }
 
+        /// <inheritdoc/>
         public Task<string> CreateTempFilePathAsync(string fileExtension)
         {
             var fileName = Guid.NewGuid().ToString("N") + SanitizeExtension(fileExtension);
@@ -128,6 +137,7 @@ namespace MirageXR.FileCache
             });
         }
 
+        /// <inheritdoc/>
         public Task DiscardTempFileAsync(string tempFilePath)
         {
             if (tempFilePath == null)
@@ -144,6 +154,7 @@ namespace MirageXR.FileCache
             });
         }
 
+        /// <inheritdoc/>
         public Task<FileLease> CommitAsync(string key, string tempFilePath, string eTag, string lastModified)
         {
             if (key == null)
@@ -205,6 +216,7 @@ namespace MirageXR.FileCache
             });
         }
 
+        /// <inheritdoc/>
         public void MarkValidated(FileLease lease, string eTag, string lastModified)
         {
             if (lease?.Entry == null)
@@ -236,6 +248,7 @@ namespace MirageXR.FileCache
             }
         }
 
+        /// <inheritdoc/>
         public Task RemoveAsync(string key)
         {
             if (key == null)
@@ -259,6 +272,7 @@ namespace MirageXR.FileCache
             });
         }
 
+        /// <inheritdoc/>
         public Task ClearAsync()
         {
             return Task.Run(() =>
@@ -280,6 +294,7 @@ namespace MirageXR.FileCache
             });
         }
 
+        /// <inheritdoc/>
         public void Flush()
         {
             if (Volatile.Read(ref _isDisposed) != 0)

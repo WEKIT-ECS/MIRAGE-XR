@@ -14,6 +14,7 @@ namespace MirageXR.FileCache
     {
         private const long HttpNotModified = 304;
 
+        /// <inheritdoc/>
         public async Task<FetchResult> FetchToFileAsync(FetchRequest request, CancellationToken cancellationToken)
         {
             using var webRequest = new UnityWebRequest(request.Url, UnityWebRequest.kHttpVerbGET);

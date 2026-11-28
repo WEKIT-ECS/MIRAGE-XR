@@ -8,6 +8,7 @@ namespace MirageXR.FileCache
     /// </summary>
     public sealed class CacheEntry
     {
+        /// <summary>Cache key (normalized URL without credentials, see <see cref="CacheRequest.Key"/>).</summary>
         [JsonProperty("key")]
         public string Key { get; set; }
 
@@ -15,9 +16,11 @@ namespace MirageXR.FileCache
         [JsonProperty("fileName")]
         public string FileName { get; set; }
 
+        /// <summary>Size of the cached file in bytes.</summary>
         [JsonProperty("sizeBytes")]
         public long SizeBytes { get; set; }
 
+        /// <summary>When the file was last served; used for LRU eviction and the unused-entry cleanup at startup.</summary>
         [JsonProperty("lastAccessUtc")]
         public DateTime LastAccessUtc { get; set; }
 
@@ -25,15 +28,19 @@ namespace MirageXR.FileCache
         [JsonProperty("validatedUtc")]
         public DateTime ValidatedUtc { get; set; }
 
+        /// <summary>ETag the server sent for this version, or <c>null</c>; used for conditional revalidation.</summary>
         [JsonProperty("eTag")]
         public string ETag { get; set; }
 
+        /// <summary>Last-Modified value the server sent for this version, or <c>null</c>; used for conditional revalidation.</summary>
         [JsonProperty("lastModified")]
         public string LastModified { get; set; }
 
+        /// <summary>True if a stale entry can be revalidated with a conditional request instead of a full download.</summary>
         [JsonIgnore]
         public bool HasValidators => !string.IsNullOrEmpty(ETag) || !string.IsNullOrEmpty(LastModified);
 
+        /// <summary>Creates an independent copy, so callers can never modify the cache's index.</summary>
         public CacheEntry Clone()
         {
             return (CacheEntry)MemberwiseClone();

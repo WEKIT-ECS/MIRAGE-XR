@@ -24,6 +24,11 @@ namespace MirageXR.FileCache
         private readonly object _lock = new object();
         private readonly Dictionary<string, InFlightRequest> _inFlight = new Dictionary<string, InFlightRequest>(StringComparer.Ordinal);
 
+        /// <param name="cache">Cache that stores the files.</param>
+        /// <param name="fetcher">Downloads files that are missing or stale.</param>
+        /// <param name="maxConcurrentDownloads">Maximum number of parallel downloads of this provider (at least 1).</param>
+        /// <param name="clock">Time source for TTL checks; defaults to the system time.</param>
+        /// <param name="log">Log sink; defaults to no logging.</param>
         public CachedFileProvider(IFileCache cache, IRemoteFileFetcher fetcher, int maxConcurrentDownloads, IClock clock = null, IFileCacheLog log = null)
         {
             if (maxConcurrentDownloads < 1)
@@ -38,6 +43,7 @@ namespace MirageXR.FileCache
             _downloadSlots = new SemaphoreSlim(maxConcurrentDownloads, maxConcurrentDownloads);
         }
 
+        /// <summary>The underlying cache (size, removal of single entries).</summary>
         public IFileCache Cache => _cache;
 
         private string Name => _cache.Options.Name;

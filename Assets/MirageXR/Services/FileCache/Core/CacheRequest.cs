@@ -27,12 +27,16 @@ namespace MirageXR.FileCache
             Key = key ?? CreateKey(url);
         }
 
+        /// <summary>Absolute URL the file is downloaded from.</summary>
         public string Url { get; }
 
+        /// <summary>Request headers sent with every download or revalidation; never <c>null</c>.</summary>
         public IReadOnlyDictionary<string, string> Headers { get; }
 
+        /// <summary>Extension of the cached file (e.g. ".glb"), or <c>null</c>.</summary>
         public string FileExtension { get; }
 
+        /// <summary>Identifies the file in the cache: requests with the same key share one entry and one download.</summary>
         public string Key { get; }
 
         /// <summary>

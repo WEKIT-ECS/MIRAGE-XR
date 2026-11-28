@@ -30,13 +30,16 @@ namespace MirageXR.FileCache
         /// <summary>Raised when <see cref="SizeText"/>, <see cref="IsClearing"/> or <see cref="CanClear"/> may have changed.</summary>
         public event Action StateChanged;
 
+        /// <summary>True while <see cref="ClearAsync"/> is running.</summary>
         public bool IsClearing { get; private set; }
 
+        /// <summary>Whether the clear button should be enabled: a cache service exists, no clearing is running and the controller is not disposed.</summary>
         public bool CanClear => _fileCacheService != null && !IsClearing && !_isDisposed;
 
         /// <summary>Current total size of all caches, e.g. "12.3 MB"; empty if there is no cache service.</summary>
         public string SizeText => _fileCacheService == null ? string.Empty : FormatSize(_fileCacheService.TotalSizeBytes);
 
+        /// <summary>Formats a size in bytes as megabytes with one decimal, independent of the device locale (e.g. "12.3 MB").</summary>
         public static string FormatSize(long bytes)
         {
             return (bytes / (1024.0 * 1024.0)).ToString("0.0", CultureInfo.InvariantCulture) + " MB";
@@ -70,6 +73,7 @@ namespace MirageXR.FileCache
             }
         }
 
+        /// <summary>Unsubscribes from the cache service and removes all <see cref="StateChanged"/> handlers.</summary>
         public void Dispose()
         {
             if (_isDisposed)

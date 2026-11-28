@@ -7,6 +7,7 @@ namespace MirageXR.FileCache
     /// </summary>
     public interface IClock
     {
+        /// <summary>Current time in UTC.</summary>
         DateTime UtcNow { get; }
     }
 }

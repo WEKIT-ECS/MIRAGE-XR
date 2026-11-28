@@ -7,8 +7,10 @@ namespace MirageXR.FileCache
     /// </summary>
     public sealed class SystemClock : IClock
     {
+        /// <summary>Shared instance; the class has no state.</summary>
         public static readonly SystemClock Instance = new SystemClock();
 
+        /// <inheritdoc/>
         public DateTime UtcNow => DateTime.UtcNow;
     }
 }
