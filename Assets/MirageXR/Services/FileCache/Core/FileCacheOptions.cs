@@ -47,6 +47,12 @@ namespace MirageXR.FileCache
         /// <summary>How long an entry is used without asking the server again.</summary>
         public TimeSpan TimeToLive { get; }
 
+        /// <summary>
+        /// Entries that have not been used for longer than this are removed when the cache is initialized (app start),
+        /// even if the cache is below its size limit. <c>null</c> keeps unused entries until they are evicted by size.
+        /// </summary>
+        public TimeSpan? MaxUnusedAge { get; set; }
+
         /// <summary>Delay used to coalesce several index changes into one write of the manifest.</summary>
         public TimeSpan ManifestSaveDelay { get; set; } = TimeSpan.FromSeconds(2);
     }

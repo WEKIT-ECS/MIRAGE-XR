@@ -422,6 +422,21 @@ namespace MirageXR.FileCache
             }
         }
 
+        private void RemoveUnusedLocked(List<string> filesToDelete)
+        {
+            if (_options.MaxUnusedAge is not { } maxUnusedAge)
+            {
+                return;
+            }
+
+            var threshold = _clock.UtcNow - maxUnusedAge;
+            foreach (var entry in _entries.Values.Where(e => e.LastAccessUtc < threshold).ToList())
+            {
+                _log.Debug($"[FileCache:{_options.Name}] removing '{entry.Key}', unused since {entry.LastAccessUtc:u}");
+                RemoveEntryLocked(entry, filesToDelete);
+            }
+        }
+
         private void EvictLocked(List<string> filesToDelete)
         {
             if (_sizeBytes <= _options.MaxSizeBytes)
@@ -603,6 +618,7 @@ namespace MirageXR.FileCache
                     }
                 }
 
+                RemoveUnusedLocked(filesToDelete);
                 EvictLocked(filesToDelete);
                 if (filesToDelete.Count > 0 || isManifestCorrupt)
                 {

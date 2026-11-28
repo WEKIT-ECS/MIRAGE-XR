@@ -259,6 +259,46 @@ namespace Tests
         }
 
         [Test]
+        public async Task Initialize_RemovesEntriesUnusedForLongerThanMaxUnusedAge()
+        {
+            var maxUnusedAge = TimeSpan.FromDays(60);
+            var cache = await CreateCacheAsync();
+            string stalePath;
+            using (var lease = await FileCacheTestUtils.CommitBytesAsync(cache, "stale", 10))
+            {
+                stalePath = lease.Path;
+            }
+
+            (await FileCacheTestUtils.CommitBytesAsync(cache, "used", 10)).Dispose();
+            _clock.Advance(TimeSpan.FromDays(30));
+            await AcquireAndReleaseAsync(cache, "used"); // access refreshes LastAccessUtc
+            cache.Dispose();
+
+            _clock.Advance(maxUnusedAge - TimeSpan.FromDays(1)); // stale: 89 days unused, used: 59 days
+            var reopened = await CreateCacheAsync(maxUnusedAge: maxUnusedAge);
+
+            Assert.AreEqual(1, reopened.Count);
+            Assert.AreEqual(10, reopened.SizeBytes);
+            Assert.IsNull(await AcquireAndReleaseAsync(reopened, "stale"));
+            Assert.IsNotNull(await AcquireAndReleaseAsync(reopened, "used"));
+            Assert.IsFalse(File.Exists(stalePath));
+        }
+
+        [Test]
+        public async Task Initialize_WithoutMaxUnusedAge_KeepsOldEntries()
+        {
+            var cache = await CreateCacheAsync();
+            (await FileCacheTestUtils.CommitBytesAsync(cache, "old", 10)).Dispose();
+            cache.Dispose();
+
+            _clock.Advance(TimeSpan.FromDays(365));
+            var reopened = await CreateCacheAsync();
+
+            Assert.AreEqual(1, reopened.Count);
+            Assert.IsNotNull(await AcquireAndReleaseAsync(reopened, "old"));
+        }
+
+        [Test]
         public async Task Initialize_OverLimit_EvictsLeastRecentlyUsed()
         {
             var cache = await CreateCacheAsync(maxSizeBytes: 100);
@@ -273,9 +313,11 @@ namespace Tests
             Assert.IsNotNull(await AcquireAndReleaseAsync(reopened, "new"));
         }
 
-        private async Task<IFileCache> CreateCacheAsync(long maxSizeBytes = 1000)
+        private async Task<IFileCache> CreateCacheAsync(long maxSizeBytes = 1000, TimeSpan? maxUnusedAge = null)
         {
-            var cache = new FileCache(FileCacheTestUtils.CreateOptions(_rootDirectory, maxSizeBytes), _clock);
+            var options = FileCacheTestUtils.CreateOptions(_rootDirectory, maxSizeBytes);
+            options.MaxUnusedAge = maxUnusedAge;
+            var cache = new FileCache(options, _clock);
             _caches.Add(cache);
             await cache.InitializeAsync();
             return cache;

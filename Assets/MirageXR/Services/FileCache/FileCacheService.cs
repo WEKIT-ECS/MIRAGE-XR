@@ -22,6 +22,9 @@ namespace MirageXR.FileCache
 
         private static readonly TimeSpan TimeToLive = TimeSpan.FromDays(7);
 
+        // removed at app start even below the size limit, so caches of users who never reach the limit stay tidy
+        private static readonly TimeSpan MaxUnusedAge = TimeSpan.FromDays(60);
+
         private readonly IFileCache[] _caches;
         private readonly IFileCacheLog _log;
 
@@ -46,7 +49,10 @@ namespace MirageXR.FileCache
 
             IFileCache CreateCache(string name, long maxSize)
             {
-                var options = new FileCacheOptions(name, Path.Combine(baseDirectory, name), maxSize, TimeToLive);
+                var options = new FileCacheOptions(name, Path.Combine(baseDirectory, name), maxSize, TimeToLive)
+                {
+                    MaxUnusedAge = MaxUnusedAge,
+                };
                 return new FileCache(options, clock, _log);
             }
         }
